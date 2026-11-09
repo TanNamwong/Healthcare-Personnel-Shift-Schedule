@@ -445,6 +445,20 @@ input,select,textarea{font-size:16px!important}
 .sec .sub{font-size:13px;font-weight:700;margin:12px 0 6px;color:var(--ink);padding-left:8px;border-left:4px solid var(--sc)}
 .sec .sub:first-child{margin-top:0}
 .sec .sub small{font-weight:400;color:var(--mute)}
+
+/* slip attachments */
+.slipbtn{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.slipbtn button{padding:11px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13px;color:var(--accent)}
+.slipbtn button.pri{grid-column:1/-1;background:linear-gradient(135deg,#2c5c99,#23497e);color:#fff;border:0;font-size:14px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.sgrid button{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;padding:0;background:var(--bg);border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.sgrid img{width:100%;height:100%;object-fit:cover;display:block}
+.sgrid .pdf{font-size:34px;line-height:1}.sgrid .pdf+small{font-size:11px;font-weight:700;color:#d64545}
+.sgrid .tg2{position:absolute;left:4px;bottom:4px;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(0,0,0,.6);color:#fff}
+.sgrid .empty{grid-column:1/-1;aspect-ratio:auto;border:2px dashed var(--line);padding:16px 8px;font-size:13px;color:var(--mute);background:transparent;pointer-events:none}
+#pvImg .pdfcard{color:#fff;text-align:center;padding:24px}
+#pvImg .pdfcard .big2{font-size:72px}
+#pvImg .pdfcard a{display:inline-block;margin-top:14px;padding:12px 22px;border-radius:12px;background:#2c5c99;color:#fff;font-weight:700;text-decoration:none}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#23497e">
@@ -517,6 +531,12 @@ input,select,textarea{font-size:16px!important}
   <div class="sec s-slip"><div class="sh"><span class="ic">🧾</span><div>เทียบกับสลิปเงินเดือน<small>เดือนนี้</small></div></div><div class="sb">
   <div class="slip"><input type="number" inputmode="decimal" id="slip" placeholder="ยอดรวมเงินเวร/OT ตามสลิป (บาท)"></div>
   <div id="slipDiff" class="hint"></div>
+  <div class="sub" style="margin-top:14px">📎 แนบสลิป <small>(รูปหรือ PDF · เก็บในเครื่องตามเดือน)</small></div>
+  <div class="slipbtn"><button class="pri" id="slCam">📷 ถ่ายภาพสลิป</button><button id="slPick">🖼 เลือกรูปจากอัลบั้ม</button><button id="slPdf">📄 เลือกไฟล์ PDF</button></div>
+  <input type="file" id="slFCam" accept="image/*" capture="environment" hidden>
+  <input type="file" id="slFPick" accept="image/*" multiple hidden>
+  <input type="file" id="slFPdf" accept="application/pdf,.pdf" multiple hidden>
+  <div class="sgrid" id="slipGrid"></div>
   </div></div>
   <div class="row"><button class="ok" id="mClose">ปิด</button></div>
   <div class="sbar"><button data-save>💾 บันทึกอัตราเงินเวร</button></div>
@@ -555,7 +575,7 @@ input,select,textarea{font-size:16px!important}
   <button class="big pri" id="bkSave">💾 สำรองข้อมูล (บันทึกเป็นไฟล์)</button>
   <div class="btn2" style="margin-top:8px"><button class="big" id="bkShare">📤 แชร์ไฟล์สำรอง</button><button class="big" id="bkRestore">📂 กู้คืนจากไฟล์</button><button class="big" id="bkCopy">📋 คัดลอกเป็นข้อความ</button><button class="big" id="bkPaste">📥 วางข้อความกู้คืน</button></div>
   <input type="file" id="bkFile" accept=".json,application/json,text/plain" hidden>
-  <label class="chk" style="margin-top:10px"><input type="checkbox" id="bkPics"><span>รวมภาพเวรจริงในไฟล์สำรอง <small style="color:var(--mute)">(ไฟล์จะใหญ่ขึ้น)</small></span></label>
+  <label class="chk" style="margin-top:10px"><input type="checkbox" id="bkPics"><span>รวมภาพเวรจริงและสลิปแนบในไฟล์สำรอง <small style="color:var(--mute)">(ไฟล์จะใหญ่ขึ้น)</small></span></label>
   </div></div>
   <div class="sec s-time"><div class="sh"><span class="ic">🕐</span><div>เวลาเข้า-ออกเวร<small>ใช้กับปฏิทินมือถือ (.ics)</small></div></div><div class="sb">
   <div id="icsSet"></div>
@@ -590,8 +610,8 @@ input,select,textarea{font-size:16px!important}
 <div class="sheet pg" id="about">
   <h2>อัปเดตแอพ</h2>
   <div class="tools"><button id="updChk">🔄 ตรวจสอบเวอร์ชันใหม่</button><button id="updForce">♻️ ล้างแคชและโหลดใหม่</button></div>
-  <p class="hint" id="updMsg">เวอร์ชันที่ใช้อยู่ 1.30 · อัปเดตไม่ลบข้อมูลเวร อัตราค่าเวร และภาพ</p>
-  <div class="devcard"><svg class="devimg" xmlns="http://www.w3.org/2000/svg" viewBox="20 24 284 470" role="img" aria-label="การ์ตูนบุรุษพยาบาล ชุดสีน้ำเงินเข้ม"><ellipse cx="150" cy="482" rx="86" ry="9" fill="#000" opacity=".13"/><path d="M104 338 L196 338 L200 458 L156 458 L150 372 L144 458 L100 458 Z" fill="#16264d"/><path d="M150 366 L150 420" stroke="#0f1b3a" stroke-width="2" opacity=".5"/><path d="M96 452 Q94 478 112 478 L146 478 Q150 462 144 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M204 452 Q206 478 188 478 L154 478 Q150 462 156 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M97 472 L146 472 M154 472 L203 472" stroke="#1f3a75" stroke-width="4" stroke-linecap="round"/><path d="M90 282 Q66 282 60 306 L66 336 L100 330 Z" fill="#1b2f5b"/><path d="M76 330 L72 378" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="71" cy="384" r="14" fill="#ebbd94"/><path d="M88 288 Q92 258 126 252 L174 252 Q208 258 212 288 L222 352 Q150 372 78 352 Z" fill="#1b2f5b"/><path d="M92 320 L84 352 M208 320 L216 352" stroke="#142449" stroke-width="2" opacity=".5"/><path d="M122 250 L150 304 L178 250 Z" fill="#f7f9fc"/><path d="M132 250 L150 282 L168 250 Z" fill="#dfae85"/><path d="M121 251 L150 306 L179 251" stroke="#3f63b0" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="M98 300 H130 V328 H98 Z" fill="none" stroke="#3a5aa3" stroke-width="2.5" stroke-linejoin="round"/><path d="M118 292 L118 312" stroke="#f4c430" stroke-width="4" stroke-linecap="round"/><path d="M120 246 Q104 304 138 326 Q150 332 162 326 Q196 304 180 246" fill="none" stroke="#2e333d" stroke-width="5" stroke-linecap="round"/><circle cx="150" cy="332" r="10" fill="#cfd6e1" stroke="#2e333d" stroke-width="3.5"/><circle cx="150" cy="332" r="4" fill="#8f9bb0"/><path d="M176 262 L186 290" stroke="#e5a019" stroke-width="2.5"/><rect x="172" y="288" width="32" height="42" rx="5" fill="#fff" stroke="#c5cee0" stroke-width="2"/><rect x="172" y="288" width="32" height="12" rx="5" fill="#2e7dd1"/><path d="M188 308 v14 M181 315 h14" stroke="#2a9d8f" stroke-width="4.5" stroke-linecap="round"/><path d="M206 270 L240 248 L256 276 L222 304 Z" fill="#1b2f5b"/><path d="M246 262 L264 208" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="267" cy="194" r="16" fill="#ebbd94"/><path d="M257 184 L255 166 M265 181 L264 162 M273 181 L274 163 M280 187 L285 172 M253 198 L242 188" stroke="#ebbd94" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M284 226 Q294 214 290 200 M290 232 Q302 220 298 204" stroke="#f0c14b" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M128 224 H172 V256 Q150 268 128 256 Z" fill="#dfae85"/><ellipse cx="62" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><ellipse cx="238" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><path d="M63 154 Q68 162 63 172 M237 154 Q232 162 237 172" stroke="#c98d68" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M62 142 C62 92 100 62 150 62 C200 62 238 92 238 142 C238 176 230 204 212 222 C196 238 174 246 150 246 C126 246 104 238 88 222 C70 204 62 176 62 142 Z" fill="#ecbf97" stroke="#a8694a" stroke-width="3"/><path d="M58 150 C46 70 104 36 152 38 C200 38 256 72 242 150 L236 140 Q236 114 208 100 Q190 90 152 100 Q118 90 94 100 Q66 114 64 140 Z" fill="#1c1a20"/><path d="M104 62 Q132 48 160 54 M150 50 Q186 48 214 66 M82 84 Q92 68 108 60" stroke="#45414d" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="94" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><ellipse cx="206" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><path d="M98 130 Q116 119 136 127" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><path d="M164 127 Q184 119 202 130" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><ellipse cx="118" cy="153" rx="10" ry="11" fill="#2a1b17"/><ellipse cx="182" cy="153" rx="10" ry="11" fill="#2a1b17"/><circle cx="122" cy="149" r="3.6" fill="#fff"/><circle cx="186" cy="149" r="3.6" fill="#fff"/><path d="M103 150 Q118 138 134 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M166 150 Q182 138 197 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M105 168 Q118 175 131 168 M169 168 Q182 175 195 168" stroke="#c48a64" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".75"/><path d="M143 176 Q150 186 158 176" stroke="#b07250" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M120 206 Q150 238 180 206 Q188 226 168 242 Q150 250 132 242 Q112 226 120 206 Z" fill="#6d665c" opacity=".42"/><path d="M122 196 Q137 186 150 192 Q163 186 178 196 Q164 202 150 199 Q136 202 122 196 Z" fill="#4f4a44" opacity=".85"/><path d="M132 208 Q150 224 168 208" stroke="#7a3a2f" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M36 70 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#f0c14b"/><path d="M258 96 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#f0c14b" opacity=".9"/></svg><div><b>นายแทน นามวงค์</b><span>ผู้พัฒนาแอพพลิเคชั่น · เวอร์ชัน <span id="appVer">1.30</span></span></div></div>
+  <p class="hint" id="updMsg">เวอร์ชันที่ใช้อยู่ 1.31 · อัปเดตไม่ลบข้อมูลเวร อัตราค่าเวร และภาพ</p>
+  <div class="devcard"><svg class="devimg" xmlns="http://www.w3.org/2000/svg" viewBox="20 24 284 470" role="img" aria-label="การ์ตูนบุรุษพยาบาล ชุดสีน้ำเงินเข้ม"><ellipse cx="150" cy="482" rx="86" ry="9" fill="#000" opacity=".13"/><path d="M104 338 L196 338 L200 458 L156 458 L150 372 L144 458 L100 458 Z" fill="#16264d"/><path d="M150 366 L150 420" stroke="#0f1b3a" stroke-width="2" opacity=".5"/><path d="M96 452 Q94 478 112 478 L146 478 Q150 462 144 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M204 452 Q206 478 188 478 L154 478 Q150 462 156 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M97 472 L146 472 M154 472 L203 472" stroke="#1f3a75" stroke-width="4" stroke-linecap="round"/><path d="M90 282 Q66 282 60 306 L66 336 L100 330 Z" fill="#1b2f5b"/><path d="M76 330 L72 378" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="71" cy="384" r="14" fill="#ebbd94"/><path d="M88 288 Q92 258 126 252 L174 252 Q208 258 212 288 L222 352 Q150 372 78 352 Z" fill="#1b2f5b"/><path d="M92 320 L84 352 M208 320 L216 352" stroke="#142449" stroke-width="2" opacity=".5"/><path d="M122 250 L150 304 L178 250 Z" fill="#f7f9fc"/><path d="M132 250 L150 282 L168 250 Z" fill="#dfae85"/><path d="M121 251 L150 306 L179 251" stroke="#3f63b0" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="M98 300 H130 V328 H98 Z" fill="none" stroke="#3a5aa3" stroke-width="2.5" stroke-linejoin="round"/><path d="M118 292 L118 312" stroke="#f4c430" stroke-width="4" stroke-linecap="round"/><path d="M120 246 Q104 304 138 326 Q150 332 162 326 Q196 304 180 246" fill="none" stroke="#2e333d" stroke-width="5" stroke-linecap="round"/><circle cx="150" cy="332" r="10" fill="#cfd6e1" stroke="#2e333d" stroke-width="3.5"/><circle cx="150" cy="332" r="4" fill="#8f9bb0"/><path d="M176 262 L186 290" stroke="#e5a019" stroke-width="2.5"/><rect x="172" y="288" width="32" height="42" rx="5" fill="#fff" stroke="#c5cee0" stroke-width="2"/><rect x="172" y="288" width="32" height="12" rx="5" fill="#2e7dd1"/><path d="M188 308 v14 M181 315 h14" stroke="#2a9d8f" stroke-width="4.5" stroke-linecap="round"/><path d="M206 270 L240 248 L256 276 L222 304 Z" fill="#1b2f5b"/><path d="M246 262 L264 208" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="267" cy="194" r="16" fill="#ebbd94"/><path d="M257 184 L255 166 M265 181 L264 162 M273 181 L274 163 M280 187 L285 172 M253 198 L242 188" stroke="#ebbd94" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M284 226 Q294 214 290 200 M290 232 Q302 220 298 204" stroke="#f0c14b" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M128 224 H172 V256 Q150 268 128 256 Z" fill="#dfae85"/><ellipse cx="62" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><ellipse cx="238" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><path d="M63 154 Q68 162 63 172 M237 154 Q232 162 237 172" stroke="#c98d68" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M62 142 C62 92 100 62 150 62 C200 62 238 92 238 142 C238 176 230 204 212 222 C196 238 174 246 150 246 C126 246 104 238 88 222 C70 204 62 176 62 142 Z" fill="#ecbf97" stroke="#a8694a" stroke-width="3"/><path d="M58 150 C46 70 104 36 152 38 C200 38 256 72 242 150 L236 140 Q236 114 208 100 Q190 90 152 100 Q118 90 94 100 Q66 114 64 140 Z" fill="#1c1a20"/><path d="M104 62 Q132 48 160 54 M150 50 Q186 48 214 66 M82 84 Q92 68 108 60" stroke="#45414d" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="94" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><ellipse cx="206" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><path d="M98 130 Q116 119 136 127" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><path d="M164 127 Q184 119 202 130" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><ellipse cx="118" cy="153" rx="10" ry="11" fill="#2a1b17"/><ellipse cx="182" cy="153" rx="10" ry="11" fill="#2a1b17"/><circle cx="122" cy="149" r="3.6" fill="#fff"/><circle cx="186" cy="149" r="3.6" fill="#fff"/><path d="M103 150 Q118 138 134 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M166 150 Q182 138 197 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M105 168 Q118 175 131 168 M169 168 Q182 175 195 168" stroke="#c48a64" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".75"/><path d="M143 176 Q150 186 158 176" stroke="#b07250" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M120 206 Q150 238 180 206 Q188 226 168 242 Q150 250 132 242 Q112 226 120 206 Z" fill="#6d665c" opacity=".42"/><path d="M122 196 Q137 186 150 192 Q163 186 178 196 Q164 202 150 199 Q136 202 122 196 Z" fill="#4f4a44" opacity=".85"/><path d="M132 208 Q150 224 168 208" stroke="#7a3a2f" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M36 70 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#f0c14b"/><path d="M258 96 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#f0c14b" opacity=".9"/></svg><div><b>นายแทน นามวงค์</b><span>ผู้พัฒนาแอพพลิเคชั่น · เวอร์ชัน <span id="appVer">1.31</span></span></div></div>
 </div>
 <div class="sheet" id="hcm" role="dialog"><h2 id="hcmT"></h2><p class="hint" id="hcmH"></p><div id="hcmL" style="max-height:46vh;overflow:auto"></div><div class="row"><button id="hcmX">ยกเลิก</button><button class="ok" id="hcmGo">นำเข้า</button></div></div>
 <div class="sheet" id="txm" role="dialog"><h2 id="txmT"></h2><p class="hint" id="txmH"></p><textarea id="txmA" rows="9"></textarea><div class="row"><button id="txmClose">ปิด</button><button class="ok" id="txmGo"></button></div></div>
@@ -845,7 +865,7 @@ function drawMoney(){const p=calcPay(),c=p.c,L=(l,n,k,h)=>`<div class="rr"><labe
  const dur=p=>{const [a,b]=opt.pats[tpOf(mKey()+'-01',null)][p],f=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};let x=f(b)-f(a);if(x<=0)x+=1440;return x/60};
  const hrs=(c.m+c.hm)*dur('m')+(c.e+c.he)*dur('e')+(c.n+c.hn)*dur('n');
  $('mSum').innerHTML+=`<div class="hint">ชั่วโมงเวรรวมโดยประมาณ ${fm(hrs)} ชม. (ไม่รวม OT) ตามเวลาเริ่ม-เลิกที่ตั้งไว้ในหน้าข้อมูล</div>`;
- const sv=opt.slip[mKey()];if(document.activeElement!==$('slip'))$('slip').value=sv===undefined?'':sv;drawSlip(p);
+ const sv=opt.slip[mKey()];if(document.activeElement!==$('slip'))$('slip').value=sv===undefined?'':sv;drawSlip(p);if(slYm!==mKey())drawSlipFiles();
  document.querySelectorAll('[data-r]').forEach(i=>{if(document.activeElement!==i)i.value=rates[i.dataset.r]||''})}
 function drawSlip(p){p=p||calcPay();const v=parseFloat($('slip').value),tot=p.sp+(opt.showOT?p.op:0);
  $('slipDiff').textContent=isNaN(v)?'กรอกยอดจากสลิปเพื่อดูส่วนต่างจากที่แอพคำนวณ (ช่วยจับเวร/OT ที่ตกหล่น)':
@@ -902,7 +922,8 @@ function pdb(){return new Promise((res,rej)=>{if(pdb.p)return res(pdb.p);const q
  q.onsuccess=()=>{pdb.p=q.result;res(q.result)};q.onerror=()=>rej(q.error)})}
 async function ptx(mode,fn){const db=await pdb();return new Promise((res,rej)=>{const t=db.transaction('pics',mode);let r;try{r=fn(t.objectStore('pics'))}catch(e){return rej(e)}
  t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})}
-const picList=ym=>ptx('readonly',s=>s.index('ym').getAll(ym)).then(a=>(a||[]).sort((x,y)=>y.t-x.t));
+const picList=ym=>ptx('readonly',s=>s.index('ym').getAll(ym)).then(a=>(a||[]).filter(x=>x.kind!=='slip').sort((x,y)=>y.t-x.t));
+const slipList=ym=>ptx('readonly',s=>s.index('ym').getAll(ym)).then(a=>(a||[]).filter(x=>x.kind==='slip').sort((x,y)=>y.t-x.t));
 const picAll=()=>ptx('readonly',s=>s.getAll());
 async function decodeImg(file){
  const lim=1800;
@@ -997,19 +1018,40 @@ $('galGo').onclick=()=>{closeGal();showTab('pics')};
 $('galPrev').onclick=()=>{cur.setMonth(cur.getMonth()-1);render();galI=0;galLoad()};
 $('galNext').onclick=()=>{cur.setMonth(cur.getMonth()+1);render();galI=0;galLoad()};
 $('picQuick').onclick=openGal;
-$('pGrid').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;
+
+/* ---------- slip attachments ---------- */
+let slUrls=[],slYm=null;
+const isPdfBlob=b=>!!b&&/pdf/i.test(b.type||'');
+async function drawSlipFiles(){const ym=mKey();slYm=ym;let L=[];try{L=await slipList(ym)}catch(e){return}
+ if(slYm!==ym)return;slUrls.forEach(u=>URL.revokeObjectURL(u));slUrls=[];
+ $('slipGrid').innerHTML=L.length?L.map((p,i)=>{const n='สลิป '+(L.length-i);if(isPdfBlob(p.blob))return `<button data-id="${p.id}"><span class="pdf">📄</span><small>PDF</small><span class="tg2">${esc(p.cap||n)}</span></button>`;const u=URL.createObjectURL(p.blob);slUrls.push(u);return `<button data-id="${p.id}"><img src="${u}" alt=""><span class="tg2">${esc(p.cap||n)}</span></button>`}).join(''):'<button class="empty">ยังไม่มีสลิปแนบของเดือนนี้</button>'}
+async function addSlips(files,pdfOnly){const ym=mKey();let ok=0,bad=[];
+ for(const f of files){try{let blob;const pdf=/pdf/i.test(f.type||'')||/\.pdf$/i.test(f.name||'');
+  if(pdf){if(f.size>20e6)throw new Error('ไฟล์ PDF ใหญ่เกิน 20 MB');blob=f.slice(0,f.size,'application/pdf')}else{if(pdfOnly)throw new Error('ไม่ใช่ไฟล์ PDF');blob=await shrink(f)}
+  await ptx('readwrite',s=>s.add({ym,t:Date.now()+ok,cap:'',blob,kind:'slip'}));ok++}catch(e){bad.push(e.message||String(e))}}
+ if(bad.length)alert('แนบไม่สำเร็จ '+bad.length+' ไฟล์: '+bad[0]);else if(ok)toast('แนบสลิปแล้ว '+ok+' ไฟล์');
+ drawSlipFiles();if(ok&&navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
+$('slCam').onclick=()=>$('slFCam').click();$('slPick').onclick=()=>$('slFPick').click();$('slPdf').onclick=()=>$('slFPdf').click();
+[['slFCam',0],['slFPick',0],['slFPdf',1]].forEach(([id,po])=>{$(id).onchange=async e=>{const el=e.target,f=[...el.files];if(f.length)await addSlips(f,po);el.value=''}});
+$('slipGrid').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;
  const p=await ptx('readonly',s=>s.get(+b.dataset.id));if(!p)return;picOpen=p;
+ const u=URL.createObjectURL(p.blob);$('pvImg').classList.remove('zoom');$('pvImg').dataset.u=u;
+ if(isPdfBlob(p.blob)){$('pvImg').innerHTML=`<div class="pdfcard"><div class="big2">📄</div><div>ไฟล์ PDF สลิป</div><a href="${u}" target="_blank" rel="noopener">เปิดดู PDF</a></div>`;$('pvEdit').style.display='none'}
+ else{$('pvImg').innerHTML=`<img src="${u}" alt="">`;$('pvEdit').style.display=''}
+ $('pvCap').value=p.cap||'';$('pv').classList.add('open')};
+$('pGrid').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;
+ const p=await ptx('readonly',s=>s.get(+b.dataset.id));if(!p)return;picOpen=p;$('pvEdit').style.display='';
  const u=URL.createObjectURL(p.blob);$('pvImg').classList.remove('zoom');$('pvImg').innerHTML=`<img src="${u}" alt="">`;$('pvImg').dataset.u=u;$('pvCap').value=p.cap||'';$('pv').classList.add('open')};
 $('pvImg').onclick=()=>$('pvImg').classList.toggle('zoom');
 async function closePv(){if(picOpen){const c=$('pvCap').value.trim();if(c!==(picOpen.cap||'')){picOpen.cap=c;await ptx('readwrite',s=>s.put(picOpen))}}
- picOpen=null;$('pv').classList.remove('open');if($('pvImg').dataset.u)URL.revokeObjectURL($('pvImg').dataset.u);$('pvImg').innerHTML='';drawPics()}
+ picOpen=null;$('pv').classList.remove('open');if($('pvImg').dataset.u)URL.revokeObjectURL($('pvImg').dataset.u);$('pvImg').innerHTML='';$('pvEdit').style.display='';drawPics();drawSlipFiles()}
 $('pvClose').onclick=closePv;
-$('pvShare').onclick=()=>{if(picOpen)shareBlob(picOpen.blob,`ภาพเวร-${picOpen.ym}-${picOpen.id}.jpg`,'ภาพเวร')};
+$('pvShare').onclick=()=>{if(picOpen)shareBlob(picOpen.blob,`ภาพเวร-${picOpen.ym}-${picOpen.id}${isPdfBlob(picOpen.blob)?'.pdf':'.jpg'}`,'ภาพเวร')};
 $('pvDel').onclick=async()=>{if(!picOpen)return;if($('pvDel').dataset.c!=='1'){$('pvDel').dataset.c='1';$('pvDel').textContent='แตะอีกครั้งเพื่อลบ';setTimeout(()=>{$('pvDel').dataset.c='';$('pvDel').textContent='🗑 ลบ'},3000);return}
  $('pvDel').dataset.c='';$('pvDel').textContent='🗑 ลบ';await ptx('readwrite',s=>s.delete(picOpen.id));picOpen=null;closePv()};
 const blobToDataUrl=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
 async function backupText(){const o=JSON.parse(backupJson());
- if($('bkPics').checked){try{o.pics=await Promise.all((await picAll()).map(async p=>({ym:p.ym,t:p.t,cap:p.cap||'',data:await blobToDataUrl(p.blob)})))}catch(e){}}
+ if($('bkPics').checked){try{o.pics=await Promise.all((await picAll()).map(async p=>({ym:p.ym,t:p.t,cap:p.cap||'',kind:p.kind||'',data:await blobToDataUrl(p.blob)})))}catch(e){}}
  return JSON.stringify(o)}
 
 /* ---------- วันหยุดจากปฏิทิน / วันหยุดพิเศษ ---------- */
@@ -1126,7 +1168,7 @@ async function applyRestore(replace){if(!pend)return;if(replace)data={};Object.a
  if(pend.web){if(pend.web.pats&&pend.web.pats[1]&&pend.web.pats[2]){const p3=pend.web.pats[3]||opt.pats[3];opt.pats=Object.assign({},pend.web.pats,{3:p3})}if([1,2,3].includes(pend.web.timePat))opt.timePat=pend.web.timePat;if(pend.web.monthPat&&typeof pend.web.monthPat==='object')opt.monthPat=pend.web.monthPat;saveOpt()}
  const n=Object.keys(pend.data).length;let np=0;
  if(pend.pics.length){try{const have=new Set((await picAll()).map(p=>p.ym+'|'+p.t));
-  for(const p of pend.pics){if(!p||!p.data||have.has(p.ym+'|'+p.t))continue;const blob=await (await fetch(p.data)).blob();await ptx('readwrite',s=>s.add({ym:p.ym,t:+p.t||Date.now(),cap:p.cap||'',blob}));np++}}catch(e){}}
+  for(const p of pend.pics){if(!p||!p.data||have.has(p.ym+'|'+p.t))continue;const blob=await (await fetch(p.data)).blob();await ptx('readwrite',s=>s.add({ym:p.ym,t:+p.t||Date.now(),cap:p.cap||'',blob,kind:p.kind||undefined}));np++}}catch(e){}}
  pend=null;$('rst').classList.remove('open');render();drawData();alert('กู้คืนข้อมูล '+n+' วัน'+(np?' และภาพเวร '+np+' ภาพ':'')+' เรียบร้อย')}
 $('rstReplace').onclick=()=>applyRestore(true);$('rstMerge').onclick=()=>applyRestore(false);$('rstCancel').onclick=()=>{pend=null;$('rst').classList.remove('open')};
 $('icsSet').onchange=e=>{const c=e.target.dataset.ic;if(c&&e.target.value){opt.pats[c[0]][c[1]][+c[2]]=e.target.value;saveOpt();drawData();render()}};
@@ -1263,7 +1305,7 @@ $('updChk').onclick=async()=>{const m=$('updMsg');
  m.textContent='กำลังตรวจสอบ…';
  let found=false;const h=()=>{found=true};navigator.serviceWorker.addEventListener('controllerchange',h);
  try{await swReg.update();await new Promise(r=>setTimeout(r,2500));
-  m.textContent=(found||!$('updBar').hidden||swReg.installing||swReg.waiting)?'พบเวอร์ชันใหม่แล้ว กดปุ่ม "อัปเดตเลย" ด้านล่างจอ':'เป็นเวอร์ชันล่าสุดแล้ว (1.30) ✓'}
+  m.textContent=(found||!$('updBar').hidden||swReg.installing||swReg.waiting)?'พบเวอร์ชันใหม่แล้ว กดปุ่ม "อัปเดตเลย" ด้านล่างจอ':'เป็นเวอร์ชันล่าสุดแล้ว (1.31) ✓'}
  catch(e){m.textContent='ตรวจสอบไม่สำเร็จ (ไม่มีสัญญาณอินเทอร์เน็ต?) ลองใหม่ภายหลัง'}
  finally{navigator.serviceWorker.removeEventListener('controllerchange',h)}};
 $('updForce').onclick=async()=>{const m=$('updMsg');m.textContent='กำลังล้างแคชแอพ…';
