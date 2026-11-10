@@ -459,13 +459,13 @@ input,select,textarea{font-size:16px!important}
 #pvImg .pdfcard{color:#fff;text-align:center;padding:24px}
 #pvImg .pdfcard .big2{font-size:72px}
 #pvImg .pdfcard a{display:inline-block;margin-top:14px;padding:12px 22px;border-radius:12px;background:#2c5c99;color:#fff;font-weight:700;text-decoration:none}
-.pgrid button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.pgrid .pdf{font-size:34px;line-height:1}.pgrid .pdf+small{font-size:11px;font-weight:700;color:#d64545}
-.pgrid .tg2{position:absolute;left:4px;bottom:4px;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(0,0,0,.6);color:#fff;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pgrid .empty{grid-column:1/-1;aspect-ratio:auto;border:2px dashed var(--line);padding:16px 8px;font-size:13px;color:var(--mute);background:transparent;pointer-events:none}
-.seg2{display:flex;gap:6px;margin:8px 0}.seg2 button{flex:1;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--accent);font-weight:700;font-size:13px}
-.seg2 button.on{background:linear-gradient(135deg,#2c5c99,#23497e);color:#fff;border:0}
-#pvImg .pdfcard a+a{background:#444;margin-left:8px}
+.gbar{display:flex;gap:6px;margin:0 0 8px;align-items:center}.gbar select{flex:1;min-width:0}.gbar button{padding:8px 10px;border-radius:10px;border:1px solid var(--line);white-space:nowrap}.gbar button.ok{flex:1}
+.gmem{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.gm{background:rgba(26,95,208,.1);border-radius:99px;padding:3px 10px;font-size:13px}.gm b{cursor:pointer;margin-left:4px;opacity:.6}
+.gwrap{overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:60vh}.gt{border-collapse:separate;border-spacing:0;font-size:12px;text-align:center}
+.gt th,.gt td{padding:5px 4px;min-width:30px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);white-space:nowrap}.gt thead th{position:sticky;top:0;background:var(--surface);z-index:2;line-height:1.1}.gt th small{display:block;font-size:9px;font-weight:400}
+.gt th:first-child{position:sticky;left:0;background:var(--surface);z-index:3;text-align:left;min-width:84px;max-width:110px;overflow:hidden;text-overflow:ellipsis}.gt td{font-weight:700}.gt td.gnd{background:repeating-linear-gradient(45deg,transparent 0 4px,rgba(120,120,120,.15) 4px 6px)}
+.gt tr.gme th{color:var(--accent)}.gt .gsel{outline:2px solid var(--accent);outline-offset:-2px}.gcnt td{font-weight:600;background:rgba(120,120,120,.07)}.gcnt th{font-size:11px}
+.gday{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:12px;font-size:13px;line-height:1.6}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#23497e">
@@ -548,6 +548,10 @@ input,select,textarea{font-size:16px!important}
   <div class="row"><button class="ok" id="mClose">ปิด</button></div>
   <div class="sbar"><button data-save>💾 บันทึกอัตราเงินเวร</button></div>
 </div>
+<div class="sheet pg" id="grp">
+  <h2>ร่วมเวร (เปรียบเทียบเวรในกลุ่ม)</h2>
+  <div id="grpBody"></div>
+</div>
 <div class="sheet pg" id="swaps">
   <h2>สลับเวร / ขึ้นเวรแทน</h2>
   <p class="hint">บันทึกที่หน้าลงเวร (แตะวันที่ > สลับเวร / ขึ้นเวรแทน) ระบุชื่อคู่และยอดเงินที่ต้องจ่ายคืน</p>
@@ -556,16 +560,18 @@ input,select,textarea{font-size:16px!important}
   <div id="swList"></div>
 </div>
 <div class="sheet pg" id="pics">
-  <h2>📎 ภาพแนบ</h2>
+  <h2>ถ่ายภาพ / แก้ไขภาพเวร</h2>
   <div class="pmo"><button id="pPrev">‹</button><b id="pTitle"></b><button id="pNext">›</button></div>
-  <div class="seg2" id="kindSeg"><button data-k="pic" class="on">📅 ภาพเวรจริง</button><button data-k="slip">🧾 สลิปเงินเดือน</button></div>
-  <p class="hint" id="pHint"></p>
-  <button class="big pri" id="pCam">📷 ถ่ายภาพ</button>
-  <div class="slipbtn"><button id="pPick">🖼 เลือกรูปจากอัลบั้ม</button><button id="pPdf">📄 เลือกไฟล์ PDF</button></div>
+  <p class="hint">ถ่ายภาพตารางเวรจริงที่หน่วยงานติดไว้ หรือเลือกภาพจากอัลบั้ม ภาพจะเก็บไว้ในแอพตามเดือน เปิดดูย้อนหลังได้ทันทีโดยไม่ต้องไปหาในอัลบั้ม</p>
+  <button class="big pri" id="pCam">📷 ถ่ายภาพเวรจริง</button>
+  <button class="big" id="pPick">🖼 เลือกภาพจากอัลบั้ม (เลือกได้หลายภาพ)</button>
   <input type="file" id="fCam" accept="image/*" capture="environment" hidden>
   <input type="file" id="fPick" accept="image/*" multiple hidden>
-  <input type="file" id="fPdf" accept="application/pdf,.pdf" multiple hidden>
   <div class="pgrid" id="pGrid"></div>
+  <div class="lbl" style="margin-top:20px;font-weight:700">สลิปเงินเดือน / เอกสารแนบ (รูปหรือ PDF)</div>
+  <p class="hint">ถ่ายภาพสลิป (ตัด/หมุนได้หลังถ่าย) เลือกรูปจากอัลบั้ม หรือแนบไฟล์ PDF แยกตามเดือน แตะที่ไฟล์เพื่อดู แก้ แชร์ หรือลบ</p>
+  <div class="slipbtn"><button class="pri" id="slCam2">📷 ถ่ายภาพสลิป</button><button id="slPick2">🖼 เลือกรูป</button><button id="slPdf2">📄 เลือกไฟล์ PDF</button></div>
+  <div class="sgrid" id="slipGrid2"></div>
   <p class="hint" id="pMsg"></p>
 </div>
 <div id="updBar" hidden><span>🔄 มีเวอร์ชันใหม่</span><button id="updNow">อัปเดตเลย</button><button id="updLater">ไว้ก่อน</button></div>
@@ -619,10 +625,12 @@ input,select,textarea{font-size:16px!important}
 <div class="sheet pg" id="about">
   <h2>อัปเดตแอพ</h2>
   <div class="tools"><button id="updChk">🔄 ตรวจสอบเวอร์ชันใหม่</button><button id="updForce">♻️ ล้างแคชและโหลดใหม่</button></div>
-  <p class="hint" id="updMsg">เวอร์ชันที่ใช้อยู่ 1.32 · อัปเดตไม่ลบข้อมูลเวร อัตราค่าเวร และภาพ</p>
-  <div class="devcard"><svg class="devimg" xmlns="http://www.w3.org/2000/svg" viewBox="20 24 284 470" role="img" aria-label="การ์ตูนบุรุษพยาบาล ชุดสีน้ำเงินเข้ม"><ellipse cx="150" cy="482" rx="86" ry="9" fill="#000" opacity=".13"/><path d="M104 338 L196 338 L200 458 L156 458 L150 372 L144 458 L100 458 Z" fill="#16264d"/><path d="M150 366 L150 420" stroke="#0f1b3a" stroke-width="2" opacity=".5"/><path d="M96 452 Q94 478 112 478 L146 478 Q150 462 144 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M204 452 Q206 478 188 478 L154 478 Q150 462 156 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M97 472 L146 472 M154 472 L203 472" stroke="#1f3a75" stroke-width="4" stroke-linecap="round"/><path d="M90 282 Q66 282 60 306 L66 336 L100 330 Z" fill="#1b2f5b"/><path d="M76 330 L72 378" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="71" cy="384" r="14" fill="#ebbd94"/><path d="M88 288 Q92 258 126 252 L174 252 Q208 258 212 288 L222 352 Q150 372 78 352 Z" fill="#1b2f5b"/><path d="M92 320 L84 352 M208 320 L216 352" stroke="#142449" stroke-width="2" opacity=".5"/><path d="M122 250 L150 304 L178 250 Z" fill="#f7f9fc"/><path d="M132 250 L150 282 L168 250 Z" fill="#dfae85"/><path d="M121 251 L150 306 L179 251" stroke="#3f63b0" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="M98 300 H130 V328 H98 Z" fill="none" stroke="#3a5aa3" stroke-width="2.5" stroke-linejoin="round"/><path d="M118 292 L118 312" stroke="#f4c430" stroke-width="4" stroke-linecap="round"/><path d="M120 246 Q104 304 138 326 Q150 332 162 326 Q196 304 180 246" fill="none" stroke="#2e333d" stroke-width="5" stroke-linecap="round"/><circle cx="150" cy="332" r="10" fill="#cfd6e1" stroke="#2e333d" stroke-width="3.5"/><circle cx="150" cy="332" r="4" fill="#8f9bb0"/><path d="M176 262 L186 290" stroke="#e5a019" stroke-width="2.5"/><rect x="172" y="288" width="32" height="42" rx="5" fill="#fff" stroke="#c5cee0" stroke-width="2"/><rect x="172" y="288" width="32" height="12" rx="5" fill="#2e7dd1"/><path d="M188 308 v14 M181 315 h14" stroke="#2a9d8f" stroke-width="4.5" stroke-linecap="round"/><path d="M206 270 L240 248 L256 276 L222 304 Z" fill="#1b2f5b"/><path d="M246 262 L264 208" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="267" cy="194" r="16" fill="#ebbd94"/><path d="M257 184 L255 166 M265 181 L264 162 M273 181 L274 163 M280 187 L285 172 M253 198 L242 188" stroke="#ebbd94" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M284 226 Q294 214 290 200 M290 232 Q302 220 298 204" stroke="#f0c14b" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M128 224 H172 V256 Q150 268 128 256 Z" fill="#dfae85"/><ellipse cx="62" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><ellipse cx="238" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><path d="M63 154 Q68 162 63 172 M237 154 Q232 162 237 172" stroke="#c98d68" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M62 142 C62 92 100 62 150 62 C200 62 238 92 238 142 C238 176 230 204 212 222 C196 238 174 246 150 246 C126 246 104 238 88 222 C70 204 62 176 62 142 Z" fill="#ecbf97" stroke="#a8694a" stroke-width="3"/><path d="M58 150 C46 70 104 36 152 38 C200 38 256 72 242 150 L236 140 Q236 114 208 100 Q190 90 152 100 Q118 90 94 100 Q66 114 64 140 Z" fill="#1c1a20"/><path d="M104 62 Q132 48 160 54 M150 50 Q186 48 214 66 M82 84 Q92 68 108 60" stroke="#45414d" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="94" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><ellipse cx="206" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><path d="M98 130 Q116 119 136 127" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><path d="M164 127 Q184 119 202 130" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><ellipse cx="118" cy="153" rx="10" ry="11" fill="#2a1b17"/><ellipse cx="182" cy="153" rx="10" ry="11" fill="#2a1b17"/><circle cx="122" cy="149" r="3.6" fill="#fff"/><circle cx="186" cy="149" r="3.6" fill="#fff"/><path d="M103 150 Q118 138 134 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M166 150 Q182 138 197 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M105 168 Q118 175 131 168 M169 168 Q182 175 195 168" stroke="#c48a64" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".75"/><path d="M143 176 Q150 186 158 176" stroke="#b07250" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M120 206 Q150 238 180 206 Q188 226 168 242 Q150 250 132 242 Q112 226 120 206 Z" fill="#6d665c" opacity=".42"/><path d="M122 196 Q137 186 150 192 Q163 186 178 196 Q164 202 150 199 Q136 202 122 196 Z" fill="#4f4a44" opacity=".85"/><path d="M132 208 Q150 224 168 208" stroke="#7a3a2f" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M36 70 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#f0c14b"/><path d="M258 96 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#f0c14b" opacity=".9"/></svg><div><b>นายแทน นามวงค์</b><span>ผู้พัฒนาแอพพลิเคชั่น · เวอร์ชัน <span id="appVer">1.32</span></span></div></div>
+  <p class="hint" id="updMsg">เวอร์ชันที่ใช้อยู่ 1.33 · อัปเดตไม่ลบข้อมูลเวร อัตราค่าเวร และภาพ</p>
+  <div class="devcard"><svg class="devimg" xmlns="http://www.w3.org/2000/svg" viewBox="20 24 284 470" role="img" aria-label="การ์ตูนบุรุษพยาบาล ชุดสีน้ำเงินเข้ม"><ellipse cx="150" cy="482" rx="86" ry="9" fill="#000" opacity=".13"/><path d="M104 338 L196 338 L200 458 L156 458 L150 372 L144 458 L100 458 Z" fill="#16264d"/><path d="M150 366 L150 420" stroke="#0f1b3a" stroke-width="2" opacity=".5"/><path d="M96 452 Q94 478 112 478 L146 478 Q150 462 144 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M204 452 Q206 478 188 478 L154 478 Q150 462 156 452 Z" fill="#f6f8fc" stroke="#c5cee0" stroke-width="2.5"/><path d="M97 472 L146 472 M154 472 L203 472" stroke="#1f3a75" stroke-width="4" stroke-linecap="round"/><path d="M90 282 Q66 282 60 306 L66 336 L100 330 Z" fill="#1b2f5b"/><path d="M76 330 L72 378" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="71" cy="384" r="14" fill="#ebbd94"/><path d="M88 288 Q92 258 126 252 L174 252 Q208 258 212 288 L222 352 Q150 372 78 352 Z" fill="#1b2f5b"/><path d="M92 320 L84 352 M208 320 L216 352" stroke="#142449" stroke-width="2" opacity=".5"/><path d="M122 250 L150 304 L178 250 Z" fill="#f7f9fc"/><path d="M132 250 L150 282 L168 250 Z" fill="#dfae85"/><path d="M121 251 L150 306 L179 251" stroke="#3f63b0" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="M98 300 H130 V328 H98 Z" fill="none" stroke="#3a5aa3" stroke-width="2.5" stroke-linejoin="round"/><path d="M118 292 L118 312" stroke="#f4c430" stroke-width="4" stroke-linecap="round"/><path d="M120 246 Q104 304 138 326 Q150 332 162 326 Q196 304 180 246" fill="none" stroke="#2e333d" stroke-width="5" stroke-linecap="round"/><circle cx="150" cy="332" r="10" fill="#cfd6e1" stroke="#2e333d" stroke-width="3.5"/><circle cx="150" cy="332" r="4" fill="#8f9bb0"/><path d="M176 262 L186 290" stroke="#e5a019" stroke-width="2.5"/><rect x="172" y="288" width="32" height="42" rx="5" fill="#fff" stroke="#c5cee0" stroke-width="2"/><rect x="172" y="288" width="32" height="12" rx="5" fill="#2e7dd1"/><path d="M188 308 v14 M181 315 h14" stroke="#2a9d8f" stroke-width="4.5" stroke-linecap="round"/><path d="M206 270 L240 248 L256 276 L222 304 Z" fill="#1b2f5b"/><path d="M246 262 L264 208" stroke="#e3b088" stroke-width="22" stroke-linecap="round"/><circle cx="267" cy="194" r="16" fill="#ebbd94"/><path d="M257 184 L255 166 M265 181 L264 162 M273 181 L274 163 M280 187 L285 172 M253 198 L242 188" stroke="#ebbd94" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M284 226 Q294 214 290 200 M290 232 Q302 220 298 204" stroke="#f0c14b" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M128 224 H172 V256 Q150 268 128 256 Z" fill="#dfae85"/><ellipse cx="62" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><ellipse cx="238" cy="162" rx="13" ry="19" fill="#e6b48b" stroke="#a8694a" stroke-width="2.5"/><path d="M63 154 Q68 162 63 172 M237 154 Q232 162 237 172" stroke="#c98d68" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M62 142 C62 92 100 62 150 62 C200 62 238 92 238 142 C238 176 230 204 212 222 C196 238 174 246 150 246 C126 246 104 238 88 222 C70 204 62 176 62 142 Z" fill="#ecbf97" stroke="#a8694a" stroke-width="3"/><path d="M58 150 C46 70 104 36 152 38 C200 38 256 72 242 150 L236 140 Q236 114 208 100 Q190 90 152 100 Q118 90 94 100 Q66 114 64 140 Z" fill="#1c1a20"/><path d="M104 62 Q132 48 160 54 M150 50 Q186 48 214 66 M82 84 Q92 68 108 60" stroke="#45414d" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="94" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><ellipse cx="206" cy="184" rx="15" ry="9" fill="#e5836c" opacity=".28"/><path d="M98 130 Q116 119 136 127" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><path d="M164 127 Q184 119 202 130" stroke="#1c1a20" stroke-width="6.5" stroke-linecap="round" fill="none"/><ellipse cx="118" cy="153" rx="10" ry="11" fill="#2a1b17"/><ellipse cx="182" cy="153" rx="10" ry="11" fill="#2a1b17"/><circle cx="122" cy="149" r="3.6" fill="#fff"/><circle cx="186" cy="149" r="3.6" fill="#fff"/><path d="M103 150 Q118 138 134 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M166 150 Q182 138 197 150" stroke="#5b3a29" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M105 168 Q118 175 131 168 M169 168 Q182 175 195 168" stroke="#c48a64" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".75"/><path d="M143 176 Q150 186 158 176" stroke="#b07250" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M120 206 Q150 238 180 206 Q188 226 168 242 Q150 250 132 242 Q112 226 120 206 Z" fill="#6d665c" opacity=".42"/><path d="M122 196 Q137 186 150 192 Q163 186 178 196 Q164 202 150 199 Q136 202 122 196 Z" fill="#4f4a44" opacity=".85"/><path d="M132 208 Q150 224 168 208" stroke="#7a3a2f" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M36 70 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#f0c14b"/><path d="M258 96 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#f0c14b" opacity=".9"/></svg><div><b>นายแทน นามวงค์</b><span>ผู้พัฒนาแอพพลิเคชั่น · เวอร์ชัน <span id="appVer">1.33</span></span></div></div>
 </div>
 <div class="sheet" id="hcm" role="dialog"><h2 id="hcmT"></h2><p class="hint" id="hcmH"></p><div id="hcmL" style="max-height:46vh;overflow:auto"></div><div class="row"><button id="hcmX">ยกเลิก</button><button class="ok" id="hcmGo">นำเข้า</button></div></div>
+<div class="sheet" id="shm" role="dialog"><h2>แชร์ตารางเวรเป็นรูป</h2><div class="lbl">ชื่อเจ้าของเวร (แสดงบนหัวรูป)</div><input type="text" id="shmName" placeholder="เช่น พยาบาล ก." maxlength="24"><label class="rr"><input type="checkbox" id="shmCode" checked><span>ฝังรหัสร่วมเวรท้ายรูป (ให้เพื่อนนำเข้ากลุ่มได้) · อย่าครอบตัดส่วนล่างของรูป</span></label><div class="row"><button id="shmX">ยกเลิก</button><button id="shmTxt">คัดลอกรหัส</button><button class="ok" id="shmGo">แชร์รูป</button></div></div>
+<div class="sheet" id="gpm" role="dialog"><h2>วางรหัสร่วมเวร</h2><p class="hint">วางข้อความที่เพื่อนส่งมา (มีบรรทัดขึ้นต้น NDS1.) วางได้หลายรายการพร้อมกัน</p><textarea id="gpmA" rows="7"></textarea><div class="row"><button id="gpmX">ยกเลิก</button><button class="ok" id="gpmGo">นำเข้า</button></div></div>
 <div class="sheet" id="txm" role="dialog"><h2 id="txmT"></h2><p class="hint" id="txmH"></p><textarea id="txmA" rows="9"></textarea><div class="row"><button id="txmClose">ปิด</button><button class="ok" id="txmGo"></button></div></div>
 <div id="toast"></div>
 <div class="sheet" id="rst" role="dialog">
@@ -635,7 +643,7 @@ input,select,textarea{font-size:16px!important}
 
 
 <p class="foot">🩺 พัฒนาโดย นายแทน นามวงค์ 💙</p>
-<nav class="tabs" id="tabs"><button data-t="cal" class="on"><i>🗓️</i><span>ตารางเวร</span></button><button data-t="money"><i>💰</i><span>เงินเวร</span></button><button data-t="swaps"><i>🔄</i><span>สลับเวร</span></button><button data-t="pics"><i>📷</i><span>ภาพแนบ</span></button><button data-t="data"><i>💾</i><span>ข้อมูล</span></button><button data-t="about"><i>🆕</i><span>อัปเดต</span></button></nav>
+<nav class="tabs" id="tabs"><button data-t="cal" class="on"><i>🗓️</i><span>ตารางเวร</span></button><button data-t="money"><i>💰</i><span>เงินเวร</span></button><button data-t="swaps"><i>🔄</i><span>สลับเวร</span></button><button data-t="pics"><i>📷</i><span>ภาพเวร</span></button><button data-t="grp"><i>👥</i><span>ร่วมเวร</span></button><button data-t="data"><i>💾</i><span>ข้อมูล</span></button><button data-t="about"><i>🆕</i><span>อัปเดต</span></button></nav>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true">
   <div class="shead"><h2 id="sh-title"></h2><button class="ok" id="save2">บันทึก</button></div>
   <div class="quick"><label><input type="checkbox" id="qk"><span>⚡ ลงเวรเร็ว: แตะเวร = บันทึก + ไปวันถัดไปทันที</span></label><button type="button" id="qkSkip">ข้าม ›</button></div>
@@ -888,7 +896,7 @@ function drawCmb(){$('cmb').innerHTML=CMB.map(([k,code,a,b])=>`<div class="rr"><
 $('cmb').onclick=e=>{const b=e.target.closest('button');if(!b)return;rates[b.dataset.k]=b.dataset.v;try{localStorage.setItem('dutyRates',JSON.stringify(rates))}catch(x){}drawCmb();drawMoney();updPay()};
 const openMoney=()=>{drawCmb();drawMoney();$('money').classList.add('open')};
 $('moneyBtn').onclick=openMoney;$('pay').onclick=openMoney;$('mClose').onclick=()=>$('money').classList.remove('open');
-const PAGES=['money','data','swaps','pics','about'];
+const PAGES=['money','data','swaps','pics','about','grp'];
 let curTab='cal';
 function showTab(t,fromPop){
  if(!fromPop){try{if(t!=='cal'&&curTab==='cal')history.pushState({t},'');else history.replaceState(t==='cal'?null:{t},'')}catch(e){}}
@@ -897,6 +905,7 @@ function showTab(t,fromPop){
  $('pgCal').style.display=t==='cal'?'':'none';
  if(t==='money')openMoney();
  else if(t==='data'){drawData();$('data').classList.add('open')}
+ else if(t==='grp'){drawGrp();$('grp').classList.add('open')}
  else if(t==='swaps'){drawSwaps();$('swaps').classList.add('open')}
  else if(t==='pics'){drawPics();$('pics').classList.add('open')}
  else if(t==='about'){$('about').classList.add('open')}
@@ -931,9 +940,8 @@ function pdb(){return new Promise((res,rej)=>{if(pdb.p)return res(pdb.p);const q
  q.onsuccess=()=>{pdb.p=q.result;res(q.result)};q.onerror=()=>rej(q.error)})}
 async function ptx(mode,fn){const db=await pdb();return new Promise((res,rej)=>{const t=db.transaction('pics',mode);let r;try{r=fn(t.objectStore('pics'))}catch(e){return rej(e)}
  t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})}
-const attList=(ym,kind)=>ptx('readonly',s=>s.index('ym').getAll(ym)).then(a=>(a||[]).filter(x=>(kind==='slip')===(x.kind==='slip')).sort((x,y)=>y.t-x.t));
-const picList=ym=>attList(ym,'pic'),slipList=ym=>attList(ym,'slip');
-function isPdfBlob(b){return !!b&&/pdf/i.test(b.type||'')}
+const picList=ym=>ptx('readonly',s=>s.index('ym').getAll(ym)).then(a=>(a||[]).filter(x=>x.kind!=='slip').sort((x,y)=>y.t-x.t));
+const slipList=ym=>ptx('readonly',s=>s.index('ym').getAll(ym)).then(a=>(a||[]).filter(x=>x.kind==='slip').sort((x,y)=>y.t-x.t));
 const picAll=()=>ptx('readonly',s=>s.getAll());
 async function decodeImg(file){
  const lim=1800;
@@ -947,39 +955,28 @@ async function decodeImg(file){
  try{url=URL.createObjectURL(file);const i=await viaUrl(url);return{src:i,w:i.naturalWidth,h:i.naturalHeight,done:()=>URL.revokeObjectURL(url)}}catch(e){if(url)URL.revokeObjectURL(url)}
  try{const d=await new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(f.result);f.onerror=()=>rej(f.error);f.readAsDataURL(file)});const i=await viaUrl(d);return{src:i,w:i.naturalWidth,h:i.naturalHeight,done:()=>{}}}catch(e){}
  throw new Error('เปิดภาพไม่ได้')}
-async function shrink(file,mx){mx=mx||1800;
+async function shrink(file){
  let im;try{im=await decodeImg(file)}catch(e){
   if(file.size&&file.size<12e6&&/^image\/(jpeg|png|webp|gif)$/i.test(file.type||''))return file.slice(0,file.size,file.type);
   throw new Error('เปิดภาพไม่ได้ (ไฟล์อาจเป็น HEIC หรือเสียหาย) ลองถ่ายใหม่หรือเลือกภาพ JPG/PNG')}
- try{const sc=Math.min(1,mx/Math.max(im.w,im.h)),cv=document.createElement('canvas');
+ try{const sc=Math.min(1,1800/Math.max(im.w,im.h)),cv=document.createElement('canvas');
   cv.width=Math.max(1,Math.round(im.w*sc));cv.height=Math.max(1,Math.round(im.h*sc));
   const cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(im.src,0,0,cv.width,cv.height);
   const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',.85));
   if(!b)throw new Error('แปลงภาพไม่สำเร็จ (หน่วยความจำไม่พอ)');return b}finally{im.done()}}
 let picUrls=[],picOpen=null;
-let attKind='pic';
 async function drawPics(){const ym=mKey();$('pTitle').textContent=`${TH_M[cur.getMonth()]} ${cur.getFullYear()+543}`;
- document.querySelectorAll('#kindSeg button').forEach(b=>b.classList.toggle('on',b.dataset.k===attKind));
- $('pHint').textContent=attKind==='slip'?'ถ่ายภาพสลิปเงินเดือน เลือกรูปจากอัลบั้ม หรือแนบไฟล์ PDF เก็บไว้ในเครื่องตามเดือน ใช้เทียบกับยอดที่แอพคำนวณ · หลังถ่ายตัด/หมุนภาพได้ก่อนบันทึก':'ถ่ายภาพตารางเวรจริงที่หน่วยงานติดไว้ เลือกรูปจากอัลบั้ม หรือแนบไฟล์ PDF เก็บไว้ในแอพตามเดือน · หลังถ่ายตัด/หมุนภาพได้ก่อนบันทึก';
- const kd=attKind;let L=[];try{L=await attList(ym,kd)}catch(e){$('pMsg').textContent='เบราว์เซอร์นี้ไม่รองรับการเก็บภาพในแอพ';return}
- if(ym!==mKey()||kd!==attKind)return;
+ let L=[];try{L=await picList(ym)}catch(e){$('pMsg').textContent='เบราว์เซอร์นี้ไม่รองรับการเก็บภาพในแอพ';return}
  picUrls.forEach(u=>URL.revokeObjectURL(u));picUrls=[];
- const nm=kd==='slip'?'สลิป':'ภาพ';
- $('pGrid').innerHTML=L.length?L.map((p,i)=>{if(isPdfBlob(p.blob))return `<button data-id="${p.id}"><span class="pdf">📄</span><small>PDF</small><span class="tg2">${esc(p.cap||nm+' '+(L.length-i))}</span></button>`;
-  const u=URL.createObjectURL(p.blob);picUrls.push(u);return `<button data-id="${p.id}"><img src="${u}" alt="${esc(p.cap||nm)}"><span class="tg2">${esc(p.cap||nm+' '+(L.length-i))}</span></button>`}).join(''):`<button class="empty">ยังไม่มี${kd==='slip'?'สลิปแนบ':'ภาพเวร'}ของเดือนนี้</button>`;
- $('pMsg').textContent=L.length?`${L.length} รายการ · แตะเพื่อดู ตัด/หมุน (เฉพาะภาพ) แชร์ หรือลบ`:'';updPicQuick();drawSlipFiles()}
-async function updPicQuick(){let n=0;try{n=(await picList(mKey())).filter(p=>!isPdfBlob(p.blob)).length}catch(e){}
+ $('pGrid').innerHTML=L.map(p=>{const u=URL.createObjectURL(p.blob);picUrls.push(u);return `<button data-id="${p.id}"><img src="${u}" alt="${esc(p.cap||'ภาพเวร')}"></button>`}).join('');
+ $('pMsg').textContent=L.length?`${L.length} ภาพ · แตะภาพเพื่อแก้ไข (ตัด/หมุน) แชร์ หรือลบ`:'ยังไม่มีภาพเวรของเดือนนี้';updPicQuick(L.length);drawSlipFiles()}
+async function updPicQuick(n){if(n===undefined){try{n=(await picList(mKey())).length}catch(e){n=0}}
  $('picQuick').textContent=n?`📷 ภาพเวรจริงเดือนนี้ (${n} ภาพ) แตะเพื่อดู`:'📷 ภาพเวรจริงเดือนนี้ (ยังไม่มีภาพ)'}
-async function addFiles(files,kind,pdfOnly){const ym=mKey(),n=files.length;let ok=0,bad=[];
- for(let i=0;i<n;i++){const f=files[i];try{let blob;const pdf=/pdf/i.test(f.type||'')||/\.pdf$/i.test(f.name||'');
-  if(pdf){if(f.size>20e6)throw new Error('ไฟล์ PDF ใหญ่เกิน 20 MB');blob=f.slice(0,f.size,'application/pdf')}
-  else{if(pdfOnly)throw new Error('ไม่ใช่ไฟล์ PDF');blob=await shrink(f,kind==='slip'?2400:1800);
-   try{const eb=await editPhoto(blob,'ข้าม (ใช้ภาพเดิม)'+(n>1?' · '+(i+1)+'/'+n:''));if(eb)blob=eb}catch(x){}}
-  const rec={ym,t:Date.now()+ok,cap:'',blob};if(kind==='slip')rec.kind='slip';
-  await ptx('readwrite',s=>s.add(rec));ok++}catch(e){bad.push(e.message||String(e))}}
- if(bad.length)alert('เพิ่มไม่สำเร็จ '+bad.length+' ไฟล์: '+bad[0]);
- else if(ok)toast((kind==='slip'?'แนบสลิปแล้ว ':'เพิ่มแล้ว ')+ok+' ไฟล์ ✓');
- drawPics();drawSlipFiles();if(ok&&navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
+async function addPics(files){const ym=mKey();let ok=0,bad=[];
+ for(const f of files){try{let blob=await shrink(f);if(files.length===1){try{const eb=await editPhoto(blob,'ข้าม (ใช้ภาพเดิม)');if(eb)blob=eb}catch(x){}}await ptx('readwrite',s=>s.add({ym,t:Date.now()+ok,cap:'',blob}));ok++}catch(e){bad.push(e.message||String(e))}}
+ if(bad.length)alert('เพิ่มภาพไม่สำเร็จ '+bad.length+' ภาพ: '+bad[0]);
+ else if(ok)toast('เพิ่มภาพแล้ว '+ok+' ภาพ ✓');
+ drawPics();if(ok&&navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 /* ---------- แก้ไขภาพ: ตัด / หมุน ---------- */
 let edS=null;
@@ -1011,9 +1008,9 @@ window.addEventListener('resize',()=>{if(edS)edLayout()});
 $('pvEdit').onclick=async()=>{if(!picOpen)return;const nb=await editPhoto(picOpen.blob);if(!nb)return;
  picOpen.blob=nb;await ptx('readwrite',s=>s.put(picOpen));
  if($('pvImg').dataset.u)URL.revokeObjectURL($('pvImg').dataset.u);const u=URL.createObjectURL(nb);$('pvImg').dataset.u=u;$('pvImg').innerHTML=`<img src="${u}" alt="">`;toast('บันทึกภาพที่แก้แล้ว ✓')};
-$('pCam').onclick=()=>$('fCam').click();$('pPick').onclick=()=>$('fPick').click();$('pPdf').onclick=()=>$('fPdf').click();
-[['fCam',0],['fPick',0],['fPdf',1]].forEach(([id,po])=>{$(id).onchange=async e=>{const el=e.target,f=[...el.files];if(f.length)await addFiles(f,attKind,po);el.value=''}});
-$('kindSeg').onclick=e=>{const b=e.target.closest('button[data-k]');if(b){attKind=b.dataset.k;drawPics()}};
+$('pCam').onclick=()=>$('fCam').click();$('pPick').onclick=()=>$('fPick').click();
+$('fCam').onchange=async e=>{const el=e.target,f=[...el.files];if(f.length)await addPics(f);el.value=''};
+$('fPick').onchange=async e=>{const el=e.target,f=[...el.files];if(f.length)await addPics(f);el.value=''};
 $('pPrev').onclick=()=>{cur.setMonth(cur.getMonth()-1);render();drawPics()};
 $('pNext').onclick=()=>{cur.setMonth(cur.getMonth()+1);render();drawPics()};
 
@@ -1025,7 +1022,7 @@ function galShow(i){galI=i;const p=galL[i];if(!p)return;$('galImg').src=galU[i];
  const sel=$('galThumbs').children[i];if(sel&&sel.scrollIntoView)try{sel.scrollIntoView({inline:'center',block:'nearest'})}catch(e){}}
 async function galLoad(){$('galTitle').textContent=`${TH_M[cur.getMonth()]} ${cur.getFullYear()+543}`;
  galU.forEach(u=>URL.revokeObjectURL(u));galU=[];galL=[];
- try{galL=(await picList(mKey())).filter(p=>!isPdfBlob(p.blob))}catch(e){galL=[]}
+ try{galL=await picList(mKey())}catch(e){galL=[]}
  galU=galL.map(p=>URL.createObjectURL(p.blob));
  const has=galL.length>0;$('galBig').style.display=has?'':'none';$('galCap').style.display=has?'':'none';$('galThumbs').style.display=has?'':'none';$('galEmpty').hidden=has;
  $('galThumbs').innerHTML=galL.map((p,i)=>`<button data-i="${i}"><img src="${galU[i]}" alt=""></button>`).join('');
@@ -1042,23 +1039,33 @@ $('picQuick').onclick=openGal;
 
 /* ---------- slip attachments ---------- */
 let slUrls=[],slYm=null;
+const isPdfBlob=b=>!!b&&/pdf/i.test(b.type||'');
 async function drawSlipFiles(){const ym=mKey();slYm=ym;let L=[];try{L=await slipList(ym)}catch(e){return}
  if(slYm!==ym)return;slUrls.forEach(u=>URL.revokeObjectURL(u));slUrls=[];
- $('slipGrid').innerHTML=L.length?L.map((p,i)=>{const n='สลิป '+(L.length-i);if(isPdfBlob(p.blob))return `<button data-id="${p.id}"><span class="pdf">📄</span><small>PDF</small><span class="tg2">${esc(p.cap||n)}</span></button>`;const u=URL.createObjectURL(p.blob);slUrls.push(u);return `<button data-id="${p.id}"><img src="${u}" alt=""><span class="tg2">${esc(p.cap||n)}</span></button>`}).join(''):'<button class="empty">ยังไม่มีสลิปแนบของเดือนนี้</button>'}
+ const sgHtml=L.length?L.map((p,i)=>{const n='สลิป '+(L.length-i);if(isPdfBlob(p.blob))return `<button data-id="${p.id}"><span class="pdf">📄</span><small>PDF</small><span class="tg2">${esc(p.cap||n)}</span></button>`;const u=URL.createObjectURL(p.blob);slUrls.push(u);return `<button data-id="${p.id}"><img src="${u}" alt=""><span class="tg2">${esc(p.cap||n)}</span></button>`}).join(''):'<button class="empty">ยังไม่มีสลิปแนบของเดือนนี้</button>';$('slipGrid').innerHTML=sgHtml;$('slipGrid2').innerHTML=sgHtml}
+async function addSlips(files,pdfOnly){const ym=mKey();let ok=0,bad=[];
+ for(const f of files){try{let blob;const pdf=/pdf/i.test(f.type||'')||/\.pdf$/i.test(f.name||'');
+  if(pdf){if(f.size>20e6)throw new Error('ไฟล์ PDF ใหญ่เกิน 20 MB');blob=f.slice(0,f.size,'application/pdf')}else{if(pdfOnly)throw new Error('ไม่ใช่ไฟล์ PDF');blob=await shrink(f);if(files.length===1){try{const eb=await editPhoto(blob,'ข้าม (ใช้ภาพเดิม)');if(eb)blob=eb}catch(x){}}}
+  await ptx('readwrite',s=>s.add({ym,t:Date.now()+ok,cap:'',blob,kind:'slip'}));ok++}catch(e){bad.push(e.message||String(e))}}
+ if(bad.length)alert('แนบไม่สำเร็จ '+bad.length+' ไฟล์: '+bad[0]);else if(ok)toast('แนบสลิปแล้ว '+ok+' ไฟล์');
+ drawSlipFiles();if(ok&&navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
+$('slCam2').onclick=()=>$('slFCam').click();$('slPick2').onclick=()=>$('slFPick').click();$('slPdf2').onclick=()=>$('slFPdf').click();
 $('slCam').onclick=()=>$('slFCam').click();$('slPick').onclick=()=>$('slFPick').click();$('slPdf').onclick=()=>$('slFPdf').click();
-[['slFCam',0],['slFPick',0],['slFPdf',1]].forEach(([id,po])=>{$(id).onchange=async e=>{const el=e.target,f=[...el.files];if(f.length)await addFiles(f,'slip',po);el.value=''}});
-async function openAtt(id){const p=await ptx('readonly',s=>s.get(+id));if(!p)return;picOpen=p;
+[['slFCam',0],['slFPick',0],['slFPdf',1]].forEach(([id,po])=>{$(id).onchange=async e=>{const el=e.target,f=[...el.files];if(f.length)await addSlips(f,po);el.value=''}});
+$('slipGrid').onclick=$('slipGrid2').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;
+ const p=await ptx('readonly',s=>s.get(+b.dataset.id));if(!p)return;picOpen=p;
  const u=URL.createObjectURL(p.blob);$('pvImg').classList.remove('zoom');$('pvImg').dataset.u=u;
- if(isPdfBlob(p.blob)){$('pvImg').innerHTML=`<div class="pdfcard"><div class="big2">📄</div><div>ไฟล์ PDF</div><a href="${u}" target="_blank" rel="noopener">เปิดดู PDF</a><a href="${u}" download="เอกสาร-${esc(p.ym)}.pdf">⬇ บันทึกไฟล์</a></div>`;$('pvEdit').style.display='none'}
+ if(isPdfBlob(p.blob)){$('pvImg').innerHTML=`<div class="pdfcard"><div class="big2">📄</div><div>ไฟล์ PDF สลิป</div><a href="${u}" target="_blank" rel="noopener">เปิดดู PDF</a></div>`;$('pvEdit').style.display='none'}
  else{$('pvImg').innerHTML=`<img src="${u}" alt="">`;$('pvEdit').style.display=''}
- $('pvCap').value=p.cap||'';$('pv').classList.add('open')}
-$('slipGrid').onclick=e=>{const b=e.target.closest('button[data-id]');if(b)openAtt(b.dataset.id)};
-$('pGrid').onclick=e=>{const b=e.target.closest('button[data-id]');if(b)openAtt(b.dataset.id)};
+ $('pvCap').value=p.cap||'';$('pv').classList.add('open')};
+$('pGrid').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;
+ const p=await ptx('readonly',s=>s.get(+b.dataset.id));if(!p)return;picOpen=p;$('pvEdit').style.display='';
+ const u=URL.createObjectURL(p.blob);$('pvImg').classList.remove('zoom');$('pvImg').innerHTML=`<img src="${u}" alt="">`;$('pvImg').dataset.u=u;$('pvCap').value=p.cap||'';$('pv').classList.add('open')};
 $('pvImg').onclick=()=>$('pvImg').classList.toggle('zoom');
 async function closePv(){if(picOpen){const c=$('pvCap').value.trim();if(c!==(picOpen.cap||'')){picOpen.cap=c;await ptx('readwrite',s=>s.put(picOpen))}}
  picOpen=null;$('pv').classList.remove('open');if($('pvImg').dataset.u)URL.revokeObjectURL($('pvImg').dataset.u);$('pvImg').innerHTML='';$('pvEdit').style.display='';drawPics();drawSlipFiles()}
 $('pvClose').onclick=closePv;
-$('pvShare').onclick=()=>{if(picOpen)shareBlob(picOpen.blob,`${picOpen.kind==='slip'?'สลิป':'ภาพเวร'}-${picOpen.ym}-${picOpen.id}${isPdfBlob(picOpen.blob)?'.pdf':'.jpg'}`,picOpen.kind==='slip'?'สลิปเงินเดือน':'ภาพเวร')};
+$('pvShare').onclick=()=>{if(picOpen)shareBlob(picOpen.blob,`ภาพเวร-${picOpen.ym}-${picOpen.id}${isPdfBlob(picOpen.blob)?'.pdf':'.jpg'}`,'ภาพเวร')};
 $('pvDel').onclick=async()=>{if(!picOpen)return;if($('pvDel').dataset.c!=='1'){$('pvDel').dataset.c='1';$('pvDel').textContent='แตะอีกครั้งเพื่อลบ';setTimeout(()=>{$('pvDel').dataset.c='';$('pvDel').textContent='🗑 ลบ'},3000);return}
  $('pvDel').dataset.c='';$('pvDel').textContent='🗑 ลบ';await ptx('readwrite',s=>s.delete(picOpen.id));picOpen=null;closePv()};
 const blobToDataUrl=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
@@ -1131,7 +1138,7 @@ function backupJson(){const d={};Object.keys(data).sort().forEach(k=>{const r=da
   d[k]={s:r.s||'',note:r.note||'',st:r.st||'',hl:r.hl||0,otm:r.otm||0,ote:r.ote||0,otn:r.otn||0,hd:r.hd||0,tp:r.tp||0,lead:r.lead?1:0,swt:r.swt||'',swp:r.swp||'',swa:+r.swa||0,swd:!!r.swd}});
  const rt={};RK.forEach(k=>rt[k]=rates[k]||'');
  return JSON.stringify({app:'nurse-duty',v:2,exported:new Date().toISOString(),data:d,rates:rt,
-  settings:{showPay:opt.showPay,showOT:opt.showOT,wkHd:opt.wkHd,shareName:opt.shareName,hCal:opt.hCal,hdBorder:opt.hdBorder,quick:opt.quick},web:{calHol,pats:opt.pats,timePat:opt.timePat,monthPat:opt.monthPat}},null,2)}
+  settings:{showPay:opt.showPay,showOT:opt.showOT,wkHd:opt.wkHd,shareName:opt.shareName,hCal:opt.hCal,hdBorder:opt.hdBorder,quick:opt.quick},web:{calHol,pats:opt.pats,timePat:opt.timePat,monthPat:opt.monthPat},grp:GRP},null,2)}
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
 const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const isTxt=t=>/^(text\/|application\/json)/.test(t);
@@ -1172,8 +1179,8 @@ function parseBackup(t){let o;try{o=JSON.parse(t.replace(/^﻿/,'').trim())}catc
   const s=r.s&&SH[r.s]?r.s:null;
   out[k]={s,note:String(r.note||''),st:r.st||null,hl:(typeof r.hl==='string'&&/^#[0-9a-fA-F]{6}$/.test(r.hl))?r.hl:(+r.hl||0),otm:+r.otm||0,ote:+r.ote||0,otn:+r.otn||0,lead:r.lead?1:0,hd:+r.hd||0,tp:[1,2,3].includes(+r.tp)?+r.tp:0,
    swt:['cover','gave','swap'].includes(r.swt)?r.swt:'',swp:String(r.swp||''),swa:+r.swa||0,swd:r.swd===true||r.swd==='true'||r.swd===1}});
- return{data:out,rates:o.rates||null,settings:o.settings||null,web:o.web||null,pics:Array.isArray(o.pics)?o.pics:[]}}
-async function applyRestore(replace){if(!pend)return;if(replace)data={};Object.assign(data,pend.data);store();
+ return{data:out,rates:o.rates||null,settings:o.settings||null,web:o.web||null,grp:o.grp||null,pics:Array.isArray(o.pics)?o.pics:[]}}
+async function applyRestore(replace){if(!pend)return;if(pend.grp&&Array.isArray(pend.grp.groups)){GRP=Object.assign({groups:[],people:{},sel:'',me:true},pend.grp);saveG()}if(replace)data={};Object.assign(data,pend.data);store();
  if(pend.rates){RK.forEach(k=>{if(pend.rates[k]!==undefined)rates[k]=String(pend.rates[k])});saveRates()}
  const st=pend.settings;if(st){['showPay','showOT','wkHd','hCal','hdBorder','quick'].forEach(k=>{if(typeof st[k]==='boolean')opt[k]=st[k]});if(typeof st.shareName==='string')opt.shareName=st.shareName;saveOpt()}
  if(pend.web&&pend.web.calHol&&typeof pend.web.calHol==='object'){const c=cleanHolMap(pend.web.calHol);calHol=replace?c:Object.assign({},calHol,c);saveCal();saveOpt()}
@@ -1271,22 +1278,23 @@ $('shPdf').onclick=()=>{if(isIOS&&navigator.standalone)toast('ถ้าไม่
   return `<tr><td>${d} ${dow}</td><td>${h(r.s?lbl(r.s):'')}</td><td>${h((x.hol?(holName(k)||(x.spc?'วันหยุดพิเศษ':'หยุด')):'')+' '+ot)}</td><td>${fm(x.sp)}</td><td>${fm(x.op)}</td><td>${h(SWE(r)+(r.swp?' '+r.swp:'')+(r.swa>0?' '+fm(+r.swa):'')+((r.swt==='cover'||r.swt==='gave')?(r.swd?' ✓':' (ค้าง)'):''))}</td><td>${h((r.lead?'หัวหน้าเวร ':'')+(r.note||''))}</td></tr>`}).join('')
  +`</table><p style="margin-top:8px;color:#555">สร้างจากแอพตารางเวร ใช้เทียบกับสลิปเงินเดือนเท่านั้น ไม่ใช่เอกสารทางการ · เลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์</p>`;
  window.print()};
-function buildImage(){const y=cur.getFullYear(),m=cur.getMonth(),W=1080,mg=30,gp=8,cw=(W-2*mg-6*gp)/7,ch=176,first=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate(),rows=Math.ceil((first+n)/7);
- const hh=opt.shareName.trim()?160:120,H=hh+44+rows*(ch+gp)+130+mg,cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
+function buildImage(nm0,withCode){const nm=(nm0==null?opt.shareName:nm0).trim();const y=cur.getFullYear(),m=cur.getMonth(),W=1080,mg=30,gp=8,cw=(W-2*mg-6*gp)/7,ch=176,first=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate(),rows=Math.ceil((first+n)/7);
+ const hh=nm?160:120,H=hh+44+rows*(ch+gp)+130+mg+(withCode?170:0),cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');c.textAlign='left';try{c.direction='ltr'}catch(e){}
  const F="'Noto Sans Thai','IBM Plex Sans Thai',sans-serif",navy='#23497e',ink='#17304d',red='#d32f2f';
+ const ct=(t,x,yy)=>{c.textAlign='left';c.fillText(t,x-c.measureText(t).width/2,yy)};
  const clip=(t,w)=>{t=String(t);if(c.measureText(t).width<=w)return t;while(t.length&&c.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'};
  const rr=(x,yy,w,h,r)=>{c.beginPath();c.roundRect?c.roundRect(x,yy,w,h,r):c.rect(x,yy,w,h)};
  c.fillStyle='#f5f8fb';c.fillRect(0,0,W,H);c.fillStyle=navy;c.fillRect(0,0,W,hh-10);c.fillStyle='#cda74d';c.fillRect(0,hh-16,W,6);
- c.fillStyle='#fff';c.textAlign='center';c.font=`700 52px ${F}`;c.fillText(`ตารางเวร ${TH_M[m]} ${y+543}`,W/2,70);
- if(opt.shareName.trim()){c.font=`400 34px ${F}`;c.fillText(opt.shareName.trim(),W/2,118)}
- c.font=`700 26px ${F}`;DOW.forEach((d,i)=>{c.fillStyle=i===0?red:navy;c.fillText(d,mg+i*(cw+gp)+cw/2,hh+30)});
+ c.fillStyle='#fff';c.font=`700 52px ${F}`;ct(`ตารางเวร ${TH_M[m]} ${y+543}`,W/2,70);
+ if(nm){c.font=`400 34px ${F}`;ct(clip(nm,W-80),W/2,118)}
+ c.font=`700 26px ${F}`;DOW.forEach((d,i)=>{c.fillStyle=i===0?red:navy;ct(d,mg+i*(cw+gp)+cw/2,hh+30)});
  const cnt={};
  for(let d=1;d<=n;d++){const k=key(y,m,d),r=data[k]||{},idx=first+d-1,col=idx%7,row=Math.floor(idx/7),x=mg+col*(cw+gp),yy=hh+44+row*(ch+gp),hol=isHol(k,data[k]);
   rr(x,yy,cw,ch,16);c.fillStyle=r.hl?hc(r.hl):'#fff';c.fill();c.strokeStyle='#e1eaf1';c.lineWidth=2;c.stroke();  c.textAlign='left';c.font=`700 26px ${F}`;c.fillStyle=(hol||col===0)?red:'#617789';c.fillText(d,x+10,yy+30);let cy=yy+38;
   if(hol&&holName(k)){c.font=`400 16px ${F}`;c.fillStyle=red;c.fillText(clip(holName(k),cw-12),x+10,yy+50);cy=yy+56}
-  if(r.st){c.font=`28px ${F}`;c.textAlign='right';c.fillStyle='#000';c.fillText(r.st,x+cw-8,yy+34);c.textAlign='left'}
+  if(r.st){c.font=`28px ${F}`;c.fillStyle='#000';c.fillText(r.st,x+cw-8-c.measureText(r.st).width,yy+34)}
   if(r.s&&SH[r.s]){cnt[r.s]=(cnt[r.s]||0)+1;const gv=r.swt==='gave';c.globalAlpha=gv?.45:1;rr(x+8,cy,cw-16,36,18);c.fillStyle=SH[r.s].c;c.fill();
-   c.fillStyle=SH[r.s].t||'#fff';c.font=`700 24px ${F}`;c.textAlign='center';c.fillText(lbl(r.s),x+cw/2,cy+26);
+   c.fillStyle=SH[r.s].t||'#fff';c.font=`700 24px ${F}`;ct(lbl(r.s),x+cw/2,cy+26);
    if(gv){const tw=c.measureText(r.s).width;c.strokeStyle=c.fillStyle;c.lineWidth=3;c.beginPath();c.moveTo(x+cw/2-tw/2,cy+18);c.lineTo(x+cw/2+tw/2,cy+18);c.stroke()}
    c.globalAlpha=1;c.textAlign='left';cy+=42}
   if(opt.showOT&&(r.otm||r.ote||r.otn)){c.font=`700 19px ${F}`;c.fillStyle='#a9761a';c.fillText('OT '+(r.otm?'ช':'')+(r.ote?'บ':'')+(r.otn?'ด':''),x+10,cy+14);cy+=20}
@@ -1297,9 +1305,102 @@ function buildImage(){const y=cur.getFullYear(),m=cur.getMonth(),W=1080,mg=30,gp
  const items=[];[['-','เช้า'],['X','บ่าย'],['O','ดึก'],['V','ลา'],['LK','ลากิจ'],['LS','ลาป่วย'],['ML','ลาคลอด'],['LB','ลาบวช'],['LW','ดูแลภรรยา']].forEach(([k,l])=>{if(cnt[k])items.push([k,l+' '+cnt[k]])});
  const off=OFF.reduce((a,k)=>a+(cnt[k]||0),0);if(off)items.push(['Su','หยุด '+off]);COMBO.forEach(k=>{if(cnt[k])items.push([k,k+' '+cnt[k]])});
  items.forEach(([k,l])=>{const tw=c.measureText(l).width+28;if(lx+tw>W-mg){lx=mg;ly+=44}rr(lx,ly,tw,36,18);c.fillStyle=SH[k].c;c.fill();c.fillStyle=SH[k].t||'#fff';c.fillText(l,lx+14,ly+26);lx+=tw+10});
- c.font=`400 20px ${F}`;c.fillStyle='#617789';c.textAlign='center';c.fillText('ตารางเวรสำหรับบุคลากรทางการแพทย์',W/2,H-18);return cv}
-$('shImg').onclick=async()=>{try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;const cv=buildImage();
- const blob=await new Promise(r=>cv.toBlob(r,'image/png'));await shareBlob(blob,`ตารางเวร-${mKey()}.png`,'แชร์ตารางเวร')}catch(e){alert('สร้างรูปไม่สำเร็จ: '+(e.message||e))}};
+ c.font=`400 20px ${F}`;c.fillStyle='#617789';ct('ตารางเวรสำหรับบุคลากรทางการแพทย์',W/2,H-18);
+ if(withCode){const by=packSched(y,m,nm),y0=H-SSY;c.fillStyle='#fff';c.fillRect(0,y0-8,W,SCR*SCELL+16);c.font=`400 18px ${F}`;c.fillStyle='#617789';ct('รหัสร่วมเวร · ใช้นำเข้ากลุ่มในแอพ (อย่าครอบตัดส่วนนี้)',W/2,y0-16);drawStrip(c,y0,by)}
+ return cv}
+/* ---------- รหัสร่วมเวร (ฝังในรูป) ---------- */
+const SK=['','-','X','O','Su','Sa','M','T','W','Th','F','V','-/X','-/O','X/O','LK','LS','ML','LB','LW'];
+const SCW=90,SCR=8,SCELL=12,SSY=168;
+const crc16=b=>{let c=0xFFFF;for(const v of b){c^=v<<8;for(let i=0;i<8;i++)c=c&0x8000?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF}return c};
+const wk=i=>((i*167+13)^((i*i*29)>>3))&255;
+function packSched(y,m,name){const n=new Date(y,m+1,0).getDate();let nm=name,nb=new TextEncoder().encode(nm);while(nb.length>48){nm=nm.slice(0,-1);nb=new TextEncoder().encode(nm)}
+ const a=[0x4E,1,0,y-2000,m,nb.length,...nb,n];for(let d=1;d<=n;d++)a.push(Math.max(0,SK.indexOf((data[key(y,m,d)]||{}).s||'')));
+ a[2]=a.length+2;const c=crc16(a);a.push(c>>8,c&255);return a}
+function unpackSched(a){if(a.length<9||a[0]!==0x4E||a[1]!==1)return null;const L=a[2];if(L>a.length||L<9)return null;const body=a.slice(0,L-2);if(crc16(body)!==((a[L-2]<<8)|a[L-1]))return null;
+ const nl=body[5];if(6+nl+1>body.length)return null;const name=new TextDecoder().decode(new Uint8Array(body.slice(6,6+nl))),n=body[6+nl];if(n<28||n>31||6+nl+1+n!==body.length)return null;
+ return{y:2000+body[3],m:body[4],name,codes:body.slice(7+nl)}}
+function drawStrip(c,y0,by){const tot=SCW*SCR/8,a=new Array(tot).fill(0);by.forEach((v,i)=>a[i]=v);c.fillStyle='#000';
+ for(let k=0;k<SCW*SCR;k++){const byte=a[k>>3]^wk(k>>3);if((byte>>(7-(k&7)))&1)c.fillRect((k%SCW)*SCELL,y0+Math.floor(k/SCW)*SCELL,SCELL,SCELL)}}
+function decodeStrip(img){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;if(!w||!h)return null;const W=1080,Hn=Math.round(h*W/w),P=14,y0=Hn-SSY,top=Math.max(0,y0-P),bot=Math.min(Hn,y0+SCR*SCELL+P);if(bot-top<SCR*SCELL)return null;
+ const cv=document.createElement('canvas');cv.width=W;cv.height=Hn;const c=cv.getContext('2d',{willReadFrequently:true});c.drawImage(img,0,0,W,Hn);
+ const id=c.getImageData(0,top,W,bot-top).data,Lm=(x,y)=>{const o=((y-top)*W+x)*4;return id[o]*.299+id[o+1]*.587+id[o+2]*.114};
+ const N=SCW*SCR,v=new Float32Array(N);
+ for(let o=0;o<=2*P;o++){const dy=(o%2?1:-1)*Math.ceil(o/2);for(let o2=0;o2<=2*P;o2++){const dx=(o2%2?1:-1)*Math.ceil(o2/2);let ok=true;
+  for(let k=0;k<N&&ok;k++){const cx=dx+(k%SCW)*SCELL+6,cy=y0+dy+Math.floor(k/SCW)*SCELL+6;if(cx<2||cx>W-3||cy-2<top||cy+2>=bot){ok=false;break}let t=0;for(let yy=-2;yy<=2;yy++)for(let xx=-2;xx<=2;xx++)t+=Lm(cx+xx,cy+yy);v[k]=t/25}
+  if(!ok)continue;const sr=Array.from(v).sort((a,b)=>a-b),thr=(sr[Math.floor(N*.03)]+sr[Math.floor(N*.97)])/2;if(sr[Math.floor(N*.97)]-sr[Math.floor(N*.03)]<60)continue;
+  const by=new Array(N/8).fill(0);for(let k=0;k<N;k++)if(v[k]<thr)by[k>>3]|=1<<(7-(k&7));for(let i=0;i<by.length;i++)by[i]^=wk(i);
+  const r=unpackSched(by);if(r)return r}}
+ return null}
+const b64u=a=>btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const unb64u=t=>{t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';return Array.from(atob(t),ch=>ch.charCodeAt(0))};
+const codeText=(y,m,nm)=>`${nm||'ตารางเวร'} ${TH_M[m]} ${y+543}\nNDS1.${b64u(packSched(y,m,nm))}`;
+function parseCodes(t){const out=[];(t.match(/NDS1\.[A-Za-z0-9_-]+/g)||[]).forEach(x=>{try{const r=unpackSched(unb64u(x.slice(5)));if(r)out.push(r)}catch(e){}});return out}
+async function loadFonts(){try{if(document.fonts){await Promise.all([document.fonts.load("700 52px 'Noto Sans Thai'",'ตารางเวร'),document.fonts.load("400 34px 'Noto Sans Thai'",'ก'),document.fonts.load("700 24px 'Noto Sans Thai'",'ก'),document.fonts.ready])}}catch(e){}}
+$('shImg').onclick=()=>{$('shmName').value=opt.shareName||'';$('shm').classList.add('open')};
+$('shmX').onclick=()=>$('shm').classList.remove('open');
+const shmNm=()=>{const nm=$('shmName').value.trim();opt.shareName=nm;saveOpt();$('shName').value=nm;return nm};
+$('shmTxt').onclick=async()=>{const nm=shmNm(),t=codeText(cur.getFullYear(),cur.getMonth(),nm);$('shm').classList.remove('open');try{await navigator.clipboard.writeText(t);toast('คัดลอกรหัสแล้ว ส่งให้เพื่อนวางในเมนู ร่วมเวร ได้')}catch(e){showTxt('show',t,'รหัสร่วมเวร')}};
+$('shmGo').onclick=async()=>{const nm=shmNm();$('shm').classList.remove('open');
+ try{await loadFonts();const cv=buildImage(nm,$('shmCode').checked),blob=await new Promise(r=>cv.toBlob(r,'image/png'));await shareBlob(blob,`ตารางเวร-${nm?nm.replace(/[\\/:*?"<>|]/g,'')+'-':''}${mKey()}.png`,'แชร์ตารางเวร')}catch(e){alert('สร้างรูปไม่สำเร็จ: '+(e.message||e))}};
+/* ---------- ร่วมเวร (กลุ่ม) ---------- */
+let GRP={groups:[],people:{},sel:'',me:true};try{GRP=Object.assign(GRP,JSON.parse(localStorage.getItem('dutyGroups')||'{}'))}catch(e){}
+const saveG=()=>{try{localStorage.setItem('dutyGroups',JSON.stringify(GRP))}catch(e){}};
+let gmo={y:cur.getFullYear(),m:cur.getMonth()},gday=0;
+const curG=()=>GRP.groups.find(g=>g.id===GRP.sel)||GRP.groups[0]||null;
+const ownName=()=>(opt.shareName||'').trim()||'ฉัน';
+const esc2=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function addSched(r){let g=curG();if(!g){g={id:'g'+Date.now(),name:'กลุ่มของฉัน',members:[]};GRP.groups.push(g);GRP.sel=g.id}
+ (GRP.people[r.name]=GRP.people[r.name]||{})[r.y+'-'+r.m]=r.codes;if(r.name!==ownName()&&!g.members.includes(r.name))g.members.push(r.name);saveG()}
+function ownCodes(y,m){const n=new Date(y,m+1,0).getDate(),a=[];for(let d=1;d<=n;d++)a.push(Math.max(0,SK.indexOf((data[key(y,m,d)]||{}).s||'')));return a}
+const SHM={'เช้า':['-','-/X','-/O'],'บ่าย':['X','-/X','X/O'],'ดึก':['O','-/O','X/O']};
+function drawGrp(){if(!GRP.groups.length){GRP.groups.push({id:'g'+Date.now(),name:'กลุ่มของฉัน',members:[]});GRP.sel=GRP.groups[0].id;saveG()}const g=curG(),{y,m}=gmo,n=new Date(y,m+1,0).getDate();
+ let h=`<div class="gbar"><select id="gSel">${GRP.groups.map(x=>`<option value="${x.id}"${g&&x.id===g.id?' selected':''}>${esc2(x.name)}</option>`).join('')||'<option>ยังไม่มีกลุ่ม</option>'}</select><button id="gNew">＋ กลุ่มใหม่</button>${g?'<button id="gRen">แก้ชื่อ</button><button id="gDel">ลบ</button>':''}</div>
+ <div class="gbar"><button id="gPrev">◀</button><b style="flex:1;text-align:center">${TH_M[m]} ${y+543}</b><button id="gNext">▶</button></div>
+ <div class="gbar"><button class="ok" id="gImg">📷 นำเข้าจากรูป</button><button id="gPaste">📋 วางรหัสข้อความ</button></div><div class="gbar"><button id="gMine">📤 ส่งเวรของฉันให้เพื่อน</button><button id="gAll">🖼 แชร์ตารางรวม</button></div><input type="file" id="gFile" accept="image/*" multiple hidden>`;
+ if(!g){h+='<p class="hint">สร้างกลุ่มก่อน แล้วนำเข้ารูปตารางเวรที่เพื่อนแชร์มา (รูปที่แชร์จากแอพนี้และติ๊ก "ฝังรหัสร่วมเวร") ระบบจะอ่านรหัสจากรูปและรวมเวรทุกคนให้ดูเทียบกัน ทำงานออฟไลน์ทั้งหมด</p>';$('grpBody').innerHTML=h;wireGrp();return}
+ const rows=[];if(GRP.me)rows.push({n:ownName()==='ฉัน'?'ฉัน':ownName()+' (ฉัน)',c:ownCodes(y,m),me:1});
+ g.members.forEach(nm=>{const c=(GRP.people[nm]||{})[y+'-'+m];rows.push({n:nm,c:c&&c.length===n?c:null,del:nm})});
+ h+=`<label class="rr"><input type="checkbox" id="gMe"${GRP.me?' checked':''}><span>รวมเวรของฉันในตาราง</span></label>
+ <div class="gmem">${g.members.map(nm=>`<span class="gm">${esc2(nm)} <b data-del="${esc2(nm)}">✕</b></span>`).join('')||'<div class="hint" style="line-height:1.7"><b>วิธีใช้ 3 ขั้น</b><br>1) ทุกคนกด "ส่งเวรของฉันให้เพื่อน" แล้วส่งรูปเข้ากลุ่ม LINE<br>2) เก็บรูปของเพื่อนลงเครื่อง<br>3) กด "นำเข้าจากรูป" เลือกหลายรูปพร้อมกันได้ ตารางรวมจะขึ้นเอง</div>'}</div>`;
+ const hol=[];h+=`<div class="gwrap"><table class="gt"><thead><tr><th>ชื่อ</th>${Array.from({length:n},(_,i)=>{const d=i+1,k=key(y,m,d),dw=new Date(y,m,d).getDay(),red=dw===0||isHol(k,data[k]);return`<th data-d="${d}" class="${gday===d?'gsel':''}" style="${red?'color:#d32f2f':''}">${d}<small>${DOW[dw]}</small></th>`}).join('')}</tr></thead><tbody>`;
+ rows.forEach(r=>{h+=`<tr class="${r.me?'gme':''}"><th>${esc2(r.n)}</th>`;for(let i=0;i<n;i++){const k=r.c?SK[r.c[i]]:'';h+=k?`<td style="background:${SH[k].c};color:${SH[k].t||'#fff'}">${esc2(lbl(k))}</td>`:`<td class="${r.c?'':'gnd'}"></td>`}h+='</tr>'});
+ Object.keys(SHM).forEach(nmS=>{h+=`<tr class="gcnt"><th>${nmS}</th>`;for(let i=0;i<n;i++){let t=0;rows.forEach(r=>{if(r.c&&SHM[nmS].includes(SK[r.c[i]]))t++});h+=`<td>${t||'·'}</td>`}h+='</tr>'});
+ h+='</tbody></table></div>';
+ if(gday){const L=Object.keys(SHM).map(nmS=>`<div><b>${nmS}:</b> ${rows.filter(r=>r.c&&SHM[nmS].includes(SK[r.c[gday-1]])).map(r=>esc2(r.n)).join(', ')||'-'}</div>`);
+  const off=rows.filter(r=>r.c&&r.c[gday-1]&&!Object.values(SHM).some(a=>a.includes(SK[r.c[gday-1]]))).map(r=>esc2(r.n)+' ('+esc2(lbl(SK[r.c[gday-1]]))+')');
+  const none=rows.filter(r=>!r.c).map(r=>esc2(r.n));
+  h+=`<div class="gday"><b>วันที่ ${gday} ${TH_M[m]}</b>${L.join('')}<div><b>หยุด/ลา:</b> ${off.join(', ')||'-'}</div>${none.length?`<div class="hint">ไม่มีข้อมูลเดือนนี้: ${none.join(', ')}</div>`:''}</div>`}
+ else h+='<p class="hint">แตะเลขวันที่ด้านบนเพื่อดูว่าวันนั้นใครอยู่เวรอะไร · แถวล่างสุดคือจำนวนคนในแต่ละเวร</p>';
+ $('grpBody').innerHTML=h;wireGrp()}
+function wireGrp(){const q=id=>$(id);
+ if(q('gSel'))q('gSel').onchange=e=>{GRP.sel=e.target.value;saveG();gday=0;drawGrp()};
+ q('gNew').onclick=()=>{const t=(prompt('ชื่อกลุ่ม (เช่น หอผู้ป่วยใน 5)')||'').trim();if(!t)return;const g={id:'g'+Date.now(),name:t,members:[]};GRP.groups.push(g);GRP.sel=g.id;saveG();drawGrp()};
+ if(q('gRen'))q('gRen').onclick=()=>{const g=curG(),t=(prompt('ชื่อกลุ่มใหม่',g.name)||'').trim();if(t){g.name=t;saveG();drawGrp()}};
+ if(q('gDel'))q('gDel').onclick=()=>{const g=curG();if(confirm('ลบกลุ่ม "'+g.name+'" ? (ไม่กระทบตารางเวรของคุณ)')){GRP.groups=GRP.groups.filter(x=>x!==g);GRP.sel='';saveG();drawGrp()}};
+ q('gPrev').onclick=()=>{gmo=new Date(gmo.y,gmo.m-1,1);gmo={y:gmo.getFullYear(),m:gmo.getMonth()};gday=0;drawGrp()};
+ q('gNext').onclick=()=>{gmo=new Date(gmo.y,gmo.m+1,1);gmo={y:gmo.getFullYear(),m:gmo.getMonth()};gday=0;drawGrp()};
+ q('gImg').onclick=()=>q('gFile').click();
+ q('gMine').onclick=()=>{cur=new Date(gmo.y,gmo.m,1);render();$('shImg').onclick()};
+ q('gAll').onclick=async()=>{try{await loadFonts();const cv=buildGrpImage();if(!cv){alert('ยังไม่มีข้อมูลสมาชิก');return}const blob=await new Promise(r=>cv.toBlob(r,'image/png'));await shareBlob(blob,`ตารางรวม-${gmo.y}-${gmo.m+1}.png`,'ตารางรวมเวร')}catch(e){alert('สร้างรูปไม่สำเร็จ: '+(e.message||e))}};
+ q('gFile').onchange=async e=>{const fs=[...e.target.files];e.target.value='';let ok=0,bad=0;
+  for(const f of fs){try{const u=URL.createObjectURL(f),im=new Image();await new Promise((res,rej)=>{im.onload=res;im.onerror=rej;im.src=u});const r=decodeStrip(im);URL.revokeObjectURL(u);if(r){addSched(r);ok++;gmo={y:r.y,m:r.m}}else bad++}catch(x){bad++}}
+  drawGrp();if(bad)alert(`อ่านรหัสไม่สำเร็จ ${bad} รูป\\nรูปต้องเป็นรูปที่แชร์จากแอพนี้ (ติ๊กฝังรหัส) และไม่ถูกครอบตัดส่วนล่าง ถ้าส่งผ่านแอพที่บีบอัดมาก ให้ขอ "รหัสข้อความ" จากเพื่อนแทน`);if(ok)toast(`นำเข้าสำเร็จ ${ok} รูป ✓`)};
+ q('gPaste').onclick=()=>{$('gpmA').value='';$('gpm').classList.add('open')};
+ if(q('gMe'))q('gMe').onchange=e=>{GRP.me=e.target.checked;saveG();drawGrp()};
+ document.querySelectorAll('#grpBody [data-del]').forEach(b=>b.onclick=()=>{const g=curG(),nm=b.dataset.del;if(confirm('เอา "'+nm+'" ออกจากกลุ่ม?')){g.members=g.members.filter(x=>x!==nm);if(!GRP.groups.some(x=>x.members.includes(nm)))delete GRP.people[nm];saveG();drawGrp()}});
+ document.querySelectorAll('#grpBody th[data-d]').forEach(t=>t.onclick=()=>{gday=gday===+t.dataset.d?0:+t.dataset.d;drawGrp()})}
+function buildGrpImage(){const g=curG();if(!g)return null;const {y,m}=gmo,n=new Date(y,m+1,0).getDate(),rows=[];
+ if(GRP.me)rows.push({n:ownName(),c:ownCodes(y,m)});g.members.forEach(nm=>{const c=(GRP.people[nm]||{})[y+'-'+m];rows.push({n:nm,c:c&&c.length===n?c:null})});if(!rows.length)return null;
+ const nc=190,cw=44,rh=46,hh=110,W=nc+n*cw+20,H=hh+46+(rows.length+3)*rh+60,cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');c.textAlign='left';
+ const F="'Noto Sans Thai','IBM Plex Sans Thai',sans-serif",ct=(t,x,yy)=>c.fillText(t,x-c.measureText(t).width/2,yy);
+ c.fillStyle='#fff';c.fillRect(0,0,W,H);c.fillStyle='#23497e';c.fillRect(0,0,W,hh-10);c.fillStyle='#fff';c.font=`700 40px ${F}`;ct(`${g.name} · ${TH_M[m]} ${y+543}`,W/2,56);c.font=`400 24px ${F}`;ct('ตารางเวรรวมของกลุ่ม',W/2,92);
+ c.font=`700 18px ${F}`;for(let d=1;d<=n;d++){const k=key(y,m,d),dw=new Date(y,m,d).getDay();c.fillStyle=(dw===0||isHol(k,data[k]))?'#d32f2f':'#23497e';ct(String(d),nc+(d-1)*cw+cw/2,hh+18);c.font=`400 13px ${F}`;ct(DOW[dw],nc+(d-1)*cw+cw/2,hh+36);c.font=`700 18px ${F}`}
+ const row=(i,label,fn,bg)=>{const yy=hh+46+i*rh;if(bg){c.fillStyle=bg;c.fillRect(0,yy,W,rh)}c.strokeStyle='#e1eaf1';c.lineWidth=1;c.strokeRect(0,yy,W,rh);c.fillStyle='#17304d';c.font=`700 20px ${F}`;let t=label;while(t.length>1&&c.measureText(t).width>nc-14)t=t.slice(0,-1);c.fillText(t,10,yy+30);for(let d=0;d<n;d++)fn(d,nc+d*cw,yy)};
+ rows.forEach((r,i)=>row(i,r.n,(d,x,yy)=>{const k=r.c?SK[r.c[d]]:'';if(k){c.fillStyle=SH[k].c;c.fillRect(x+1,yy+3,cw-2,rh-6);c.fillStyle=SH[k].t||'#fff';c.font=`700 16px ${F}`;ct(lbl(k),x+cw/2,yy+29)}else if(!r.c){c.fillStyle='#eee';c.fillRect(x+1,yy+3,cw-2,rh-6)}},i%2?'#f5f8fb':null));
+ Object.keys(SHM).forEach((nmS,j)=>row(rows.length+j,'จำนวน'+nmS,(d,x,yy)=>{let t=0;rows.forEach(r=>{if(r.c&&SHM[nmS].includes(SK[r.c[d]]))t++});c.fillStyle='#17304d';c.font=`700 18px ${F}`;ct(t?String(t):'·',x+cw/2,yy+29)},'#eaf1f7'));
+ c.font=`400 18px ${F}`;c.fillStyle='#617789';ct('สร้างจากแอพตารางเวร',W/2,H-20);return cv}
+$('gpmX').onclick=()=>$('gpm').classList.remove('open');
+$('gpmGo').onclick=()=>{const rs=parseCodes($('gpmA').value);if(!rs.length){alert('ไม่พบรหัสร่วมเวร (ขึ้นต้น NDS1.) ในข้อความ');return}rs.forEach(addSched);gmo={y:rs[0].y,m:rs[0].m};$('gpm').classList.remove('open');drawGrp();toast(`นำเข้า ${rs.length} รายการ ✓`)};
 render();updPicQuick();if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
 /* ---------- อัปเดตแอพ ---------- */
 let swReg=null;
@@ -1317,7 +1418,7 @@ $('updChk').onclick=async()=>{const m=$('updMsg');
  m.textContent='กำลังตรวจสอบ…';
  let found=false;const h=()=>{found=true};navigator.serviceWorker.addEventListener('controllerchange',h);
  try{await swReg.update();await new Promise(r=>setTimeout(r,2500));
-  m.textContent=(found||!$('updBar').hidden||swReg.installing||swReg.waiting)?'พบเวอร์ชันใหม่แล้ว กดปุ่ม "อัปเดตเลย" ด้านล่างจอ':'เป็นเวอร์ชันล่าสุดแล้ว (1.32) ✓'}
+  m.textContent=(found||!$('updBar').hidden||swReg.installing||swReg.waiting)?'พบเวอร์ชันใหม่แล้ว กดปุ่ม "อัปเดตเลย" ด้านล่างจอ':'เป็นเวอร์ชันล่าสุดแล้ว (1.33) ✓'}
  catch(e){m.textContent='ตรวจสอบไม่สำเร็จ (ไม่มีสัญญาณอินเทอร์เน็ต?) ลองใหม่ภายหลัง'}
  finally{navigator.serviceWorker.removeEventListener('controllerchange',h)}};
 $('updForce').onclick=async()=>{const m=$('updMsg');m.textContent='กำลังล้างแคชแอพ…';
